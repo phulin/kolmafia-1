@@ -10,7 +10,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.SortedMap;
 import java.util.StringTokenizer;
+import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import net.java.dev.spellcast.utilities.LockableListModel;
@@ -894,7 +896,7 @@ public class AdventureDatabase {
   }
 
   private static class AdventureArray {
-    private final Map<String, KoLAdventure> internalList = new HashMap<>();
+    private final SortedMap<String, KoLAdventure> internalList = new TreeMap<>();
 
     public void add(final KoLAdventure value) {
       this.internalList.put(StringUtilities.getCanonicalName(value.getAdventureName()), value);
