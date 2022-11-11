@@ -2,6 +2,7 @@ package net.sourceforge.kolmafia.textui.parsetree;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -139,7 +140,7 @@ public abstract class BasicScope extends Command {
       params = Collections.emptyList();
     }
 
-    Function[] functions = this.functions.findFunctions(name);
+    Collection<Function> functions = this.functions.findFunctions(name);
 
     Function result = null;
 
@@ -189,7 +190,7 @@ public abstract class BasicScope extends Command {
   }
 
   private Function findFunction(
-      final Function[] functions,
+      final Collection<Function> functions,
       final String name,
       final List<Evaluable> params,
       final MatchType match,
@@ -204,7 +205,7 @@ public abstract class BasicScope extends Command {
     // Search the parent scope.
     BasicScope parent = this.getParentScope();
     if (parent != null) {
-      Function[] parentFunctions = parent.functions.findFunctions(name);
+      Collection<Function> parentFunctions = parent.functions.findFunctions(name);
       return parent.findFunction(parentFunctions, name, params, match, vararg);
     }
 
@@ -216,7 +217,7 @@ public abstract class BasicScope extends Command {
       return f;
     }
 
-    Function[] options = this.functions.findFunctions(f.getName());
+    Collection<Function> options = this.functions.findFunctions(f.getName());
     for (Function function : options) {
       if (function instanceof UserDefinedFunction) {
         UserDefinedFunction existing = (UserDefinedFunction) function;
@@ -231,8 +232,8 @@ public abstract class BasicScope extends Command {
 
   public Function findVarargClash(final UserDefinedFunction f) {
     // We will consider functions from this scope and from the RuntimeLibrary.
-    Function[] userFunctions = this.functions.findFunctions(f.getName());
-    Function[] libraryFunctions = RuntimeLibrary.functions.findFunctions(f.getName());
+    Collection<Function> userFunctions = this.functions.findFunctions(f.getName());
+    Collection<Function> libraryFunctions = RuntimeLibrary.functions.findFunctions(f.getName());
 
     Function result = this.findVarargClash(this, f, userFunctions);
     if (result != null) {
@@ -248,7 +249,7 @@ public abstract class BasicScope extends Command {
   }
 
   private Function findVarargClash(
-      BasicScope scope, final UserDefinedFunction f, final Function[] functions) {
+      BasicScope scope, final UserDefinedFunction f, final Collection<Function> functions) {
     for (Function function : functions) {
       if (f.varargsClash(function)) {
         return function;
@@ -298,9 +299,9 @@ public abstract class BasicScope extends Command {
 
   public Function findFunction(
       final String name, final FunctionList functionList, final boolean hasParameters) {
-    Function[] functions = functionList.findFunctions(name);
+    Collection<Function> functions = functionList.findFunctions(name);
 
-    if (functions.length == 0) {
+    if (functions.size() == 0) {
       return null;
     }
 
@@ -308,11 +309,11 @@ public abstract class BasicScope extends Command {
     int minParamCount = Integer.MAX_VALUE;
     Function bestMatch = null;
 
-    for (int i = 0; i < functions.length; ++i) {
+    for (Function function : functions) {
       int paramCount = 0;
       boolean isSingleString = false;
 
-      Iterator<VariableReference> refIterator = functions[i].getVariableReferences().iterator();
+      Iterator<VariableReference> refIterator = function.getVariableReferences().iterator();
 
       if (refIterator.hasNext()) {
         VariableReference reference = refIterator.next();
@@ -330,22 +331,22 @@ public abstract class BasicScope extends Command {
 
       if (paramCount == 0) {
         if (!hasParameters) {
-          return functions[i];
+          return function;
         }
       } else if (hasParameters && paramCount == 1) {
         if (isSingleString) {
-          return functions[i];
+          return function;
         }
 
         if (minParamCount == 1) {
           isAmbiguous = true;
         }
 
-        bestMatch = functions[i];
+        bestMatch = function;
         minParamCount = 1;
       } else {
         if (paramCount < minParamCount) {
-          bestMatch = functions[i];
+          bestMatch = function;
           minParamCount = paramCount;
           isAmbiguous = false;
         } else if (minParamCount == paramCount) {

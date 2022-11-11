@@ -2,6 +2,7 @@ package net.sourceforge.kolmafia.textui.parsetree;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Stack;
 import net.sourceforge.kolmafia.StaticEntity;
@@ -97,7 +98,7 @@ public class UserDefinedFunction extends Function {
   }
 
   public boolean overridesLibraryFunction() {
-    Function[] functions = RuntimeLibrary.functions.findFunctions(this.name);
+    Collection<Function> functions = RuntimeLibrary.functions.findFunctions(this.name);
 
     for (Function function : functions) {
       // Match base types. We don't want an user to override a library function through a typedef.

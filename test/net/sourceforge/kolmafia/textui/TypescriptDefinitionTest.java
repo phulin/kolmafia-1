@@ -7,7 +7,6 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.matchesPattern;
 import static org.hamcrest.text.CharSequenceLength.hasLength;
 
-import java.util.Arrays;
 import java.util.stream.Stream;
 import net.sourceforge.kolmafia.textui.parsetree.LibraryFunction;
 import org.junit.jupiter.api.Test;
@@ -18,7 +17,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 public class TypescriptDefinitionTest {
   private LibraryFunction findFunction(final String signature) {
     var name = signature.substring(0, signature.indexOf("("));
-    return Arrays.stream(RuntimeLibrary.functions.findFunctions(name))
+    return RuntimeLibrary.functions.findFunctions(name).stream()
         .filter(f -> f.getSignature().equals(signature))
         .map(LibraryFunction.class::cast)
         .findFirst()

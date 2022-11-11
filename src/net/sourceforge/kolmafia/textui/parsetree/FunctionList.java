@@ -1,5 +1,6 @@
 package net.sourceforge.kolmafia.textui.parsetree;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.TreeMap;
 
@@ -20,9 +21,9 @@ public class FunctionList implements Iterable<Function> {
     return this.list.values().remove(f);
   }
 
-  public Function[] findFunctions(String name) {
+  public Collection<Function> findFunctions(String name) {
     name = name.toLowerCase();
-    return this.list.subMap(name + '\0', name + '\1').values().toArray(new Function[0]);
+    return this.list.subMap(name + '\0', name + '\1').values();
   }
 
   public boolean isEmpty() {

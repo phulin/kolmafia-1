@@ -1,6 +1,7 @@
 package net.sourceforge.kolmafia.textui.javascript;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import net.sourceforge.kolmafia.KoLmafia;
 import net.sourceforge.kolmafia.textui.DataTypes;
@@ -40,7 +41,7 @@ public abstract class AshStub extends BaseFunction {
 
   private Function findMatchingFunction(List<Value> ashArgs) {
     Function function = null;
-    Function[] libraryFunctions = getAllFunctions().findFunctions(ashFunctionName);
+    Collection<Function> libraryFunctions = getAllFunctions().findFunctions(ashFunctionName);
 
     MatchType[] matchTypes = {MatchType.EXACT, MatchType.BASE, MatchType.COERCE};
     for (MatchType matchType : matchTypes) {
