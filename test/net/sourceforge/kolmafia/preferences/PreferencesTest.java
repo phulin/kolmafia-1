@@ -16,26 +16,28 @@ import java.util.TreeMap;
 import net.java.dev.spellcast.utilities.DataUtilities;
 import net.sourceforge.kolmafia.KoLCharacter;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 class PreferencesTest {
-  private final String USER_NAME = "PreferencesTestFakeUser";
+  private static final String USER_NAME = "PreferencesTestFakeUser";
+
+  @BeforeAll
+  public static void beforeAll() {
+    KoLCharacter.reset(USER_NAME);
+  }
 
   // These need to be before and after each because leakage has been observed between tests
   // in this class.
   @BeforeEach
   public void initializeCharPrefs() {
-    KoLCharacter.reset(USER_NAME);
-    KoLCharacter.reset(true);
+    Preferences.reset(USER_NAME);
   }
 
   @AfterEach
   public void resetCharAndPrefs() {
-    KoLCharacter.reset("");
-    KoLCharacter.reset(true);
-    KoLCharacter.setUserId(0);
     File userFile = new File("settings/" + USER_NAME.toLowerCase() + "_prefs.txt");
     if (userFile.exists()) {
       userFile.delete();
@@ -47,7 +49,7 @@ class PreferencesTest {
     String propName = "aTestProp";
     Preferences.setBoolean(propName, true);
     assertTrue(Preferences.getBoolean(propName), "Property Set but does not exist.");
-    Preferences.reset("PreferencesTestFakeUser"); // reload from disk
+    Preferences.reset(USER_NAME); // reload from disk
     assertFalse(Preferences.getBoolean(propName), "Property not restored from disk by reset.");
   }
 

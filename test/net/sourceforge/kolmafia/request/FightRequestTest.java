@@ -52,6 +52,7 @@ import net.sourceforge.kolmafia.session.EquipmentManager;
 import net.sourceforge.kolmafia.session.GreyYouManager;
 import net.sourceforge.kolmafia.session.InventoryManager;
 import net.sourceforge.kolmafia.session.LocketManager;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Nested;
@@ -64,10 +65,15 @@ import org.junit.jupiter.params.provider.ValueSource;
 public class FightRequestTest {
   private final FightRequest fr = FightRequest.INSTANCE;
 
+  @BeforeAll
+  public static void beforeAll() {
+    KoLCharacter.reset("FightRequestTest");
+  }
+
   @BeforeEach
   public void beforeEach() {
-    KoLCharacter.reset("");
-    KoLCharacter.reset("FightRequestTest");
+    Preferences.reset("FightRequestTest");
+
     KoLConstants.availableCombatSkillsList.clear();
     KoLConstants.availableCombatSkillsSet.clear();
   }

@@ -615,7 +615,8 @@ public class Preferences {
       // continue;
 
       String value = (String) entry.getValue();
-      Preferences.putGlobal(key, value);
+      // Don't know whether saveSettingsOnSet is on yet, so track encoded if saving to file.
+      Preferences.putGlobal(key, value, Preferences.saveSettingsToFile);
     }
 
     // For all global properties in defaults.txt which were not in
@@ -625,7 +626,7 @@ public class Preferences {
       if (!Preferences.globalValues.containsKey(key)) {
         // System.out.println( "Adding new built-in global setting: " + key );
         String value = entry.getValue();
-        Preferences.putGlobal(key, value);
+        Preferences.putGlobal(key, value, Preferences.saveSettingsToFile);
       }
     }
   }
@@ -643,7 +644,7 @@ public class Preferences {
       String key = (String) currentEntry.getKey();
       String value = (String) currentEntry.getValue();
 
-      Preferences.putUser(key, value);
+      Preferences.putUser(key, value, Preferences.saveSettingsToFile);
     }
 
     for (Entry<String, String> entry : Preferences.userNames.entrySet()) {
@@ -664,7 +665,7 @@ public class Preferences {
               : entry.getValue();
 
       // System.out.println( "Adding new built-in user setting: " + key );
-      Preferences.putUser(key, value);
+      Preferences.putUser(key, value, Preferences.saveSettingsToFile);
     }
   }
 
@@ -1153,20 +1154,12 @@ public class Preferences {
     }
   }
 
-  private static void putGlobal(final String name, final Object value) {
-    putGlobal(name, value, true);
-  }
-
   private static void putGlobal(final String name, final Object value, boolean updateEncoded) {
     Preferences.globalValues.put(name, value);
     if (updateEncoded) {
       Preferences.globalEncodedValues.put(
           name, encodeProperty(name, value.toString()).getBytes(StandardCharsets.UTF_8));
     }
-  }
-
-  private static void putUser(final String name, final Object value) {
-    Preferences.putUser(name, value, true);
   }
 
   private static void putUser(final String name, final Object value, boolean updateEncoded) {

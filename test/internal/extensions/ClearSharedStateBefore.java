@@ -30,21 +30,24 @@ public class ClearSharedStateBefore implements BeforeAllCallback {
   @Override
   public void beforeAll(ExtensionContext context) {
     if (isNested(context)) return;
+    Preferences.saveSettingsToFile = false;
     restoreUserStateToNoUser();
     restoreOtherStates();
     deleteDirectoriesAndContents();
   }
 
   public void restoreUserStateToNoUser() {
-    KoLCharacter.reset("");
-    // But, if username is already "", then it doesn't do the bulk of resetting state.
-    KoLCharacter.reset(true);
-    Preferences.reset("");
+    if (!KoLCharacter.getUserName().isEmpty()) {
+      KoLCharacter.reset("");
+    } else {
+      // If username is already "", then it doesn't do the bulk of resetting state.
+      Preferences.reset("");
+      KoLCharacter.reset(true);
+    }
     KoLCharacter.setUserId(0);
   }
 
   public void restoreOtherStates() {
-    Preferences.saveSettingsToFile = false;
     // re-register default commands
     AbstractCommand.clear();
     KoLCharacter.setCurrentRun(0);
@@ -57,7 +60,6 @@ public class ClearSharedStateBefore implements BeforeAllCallback {
     AdventureSpentDatabase.setNoncombatEncountered(false);
     RelayRequest.reset();
     StandardRequest.reset();
-    KoLConstants.activeEffects.clear();
     KoLCharacter.setLimitMode(LimitMode.NONE);
     FightRequest.currentRound = 0;
     ChoiceManager.handlingChoice = false;
