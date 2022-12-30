@@ -33,6 +33,7 @@ import net.sourceforge.kolmafia.objectpool.SkillPool;
 import net.sourceforge.kolmafia.persistence.*;
 import net.sourceforge.kolmafia.persistence.MonsterDatabase.Element;
 import net.sourceforge.kolmafia.persistence.QuestDatabase.Quest;
+import net.sourceforge.kolmafia.preferences.PreferencePool;
 import net.sourceforge.kolmafia.preferences.Preferences;
 import net.sourceforge.kolmafia.request.CampgroundRequest;
 import net.sourceforge.kolmafia.request.CharPaneRequest;
@@ -570,24 +571,24 @@ public abstract class KoLCharacter {
         limit += 5;
       }
 
-      if (Preferences.getBoolean("_distentionPillUsed")) {
+      if (PreferencePool._distentionPillUsed.get()) {
         limit += 1;
       }
 
-      if (Preferences.getBoolean("_lupineHormonesUsed")) {
+      if (PreferencePool._lupineHormonesUsed.get()) {
         limit += 3;
       }
 
-      if (Preferences.getBoolean("_sweetToothUsed")) {
+      if (PreferencePool._sweetToothUsed.get()) {
         limit += 1;
       }
 
-      if (Preferences.getBoolean("_voraciTeaUsed")) {
+      if (PreferencePool._voraciTeaUsed.get()) {
         limit += 1;
       }
 
       // Pantsgiving
-      limit += Preferences.getInteger("_pantsgivingFullness");
+      limit += PreferencePool._pantsgivingFullness.get();
     }
 
     if (KoLCharacter.inBeecore()
@@ -759,7 +760,7 @@ public abstract class KoLCharacter {
       limit += 5;
     }
 
-    if (Preferences.getInteger("lastStillBeatingSpleen") == KoLCharacter.getAscensions()) {
+    if (PreferencePool.lastStillBeatingSpleen.get() == KoLCharacter.getAscensions()) {
       limit += 1;
     }
 
@@ -2831,13 +2832,13 @@ public abstract class KoLCharacter {
    * @return <code>true</code> if the character has freed King Ralph
    */
   public static final boolean kingLiberated() {
-    int lastAscension = Preferences.getInteger("lastKingLiberation");
+    int lastAscension = PreferencePool.lastKingLiberation.get();
     if (lastAscension < KoLCharacter.ascensions) {
       Preferences.setInteger("lastKingLiberation", KoLCharacter.getAscensions());
       Preferences.setBoolean("kingLiberated", false);
       return false;
     }
-    return Preferences.getBoolean("kingLiberated");
+    return PreferencePool.kingLiberated.get();
   }
 
   // Mark whether api.php says we've liberated King Ralph. This is done
@@ -4846,10 +4847,10 @@ public abstract class KoLCharacter {
   }
 
   private static int equipmentSlotFromSubset(final AdventureResult item, final int[] slots) {
-    return Arrays.stream(slots)
-        .filter(s -> KoLCharacter.hasEquipped(item, s))
-        .findFirst()
-        .orElse(EquipmentManager.NONE);
+    for (int slot : slots) {
+      if (hasEquipped(item, slot)) return slot;
+    }
+    return EquipmentManager.NONE;
   }
 
   private static int equipmentSlotFromSubset(final AdventureResult item, final int slot) {

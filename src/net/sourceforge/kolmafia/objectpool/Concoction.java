@@ -17,6 +17,7 @@ import net.sourceforge.kolmafia.persistence.ConcoctionDatabase;
 import net.sourceforge.kolmafia.persistence.Consumable;
 import net.sourceforge.kolmafia.persistence.ConsumablesDatabase;
 import net.sourceforge.kolmafia.persistence.ItemDatabase;
+import net.sourceforge.kolmafia.preferences.PreferencePool;
 import net.sourceforge.kolmafia.preferences.Preferences;
 import net.sourceforge.kolmafia.request.BarrelShrineRequest;
 import net.sourceforge.kolmafia.request.ClanLoungeRequest;
@@ -448,7 +449,7 @@ public class Concoction implements Comparable<Concoction> {
     if (this.type == ConcoctionType.NONE) {
       return this.nameCheckCompare(o);
     } else if (this.type == ConcoctionType.POTION) {
-      if (Preferences.getBoolean("sortByEffect")) {
+      if (PreferencePool.sortByEffect.get()) {
         return this.getEffectName().compareTo(o.getEffectName());
       } else {
         return this.nameCheckCompare(o);
@@ -469,7 +470,7 @@ public class Concoction implements Comparable<Concoction> {
       return 1;
     }
 
-    if (Preferences.getBoolean("sortByRoom")) {
+    if (PreferencePool.sortByRoom.get()) {
       int limit;
       boolean thisCantConsume = false;
       boolean oCantConsume = false;

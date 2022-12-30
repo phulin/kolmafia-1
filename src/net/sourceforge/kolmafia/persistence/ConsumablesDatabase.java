@@ -26,7 +26,9 @@ import net.sourceforge.kolmafia.objectpool.ConcoctionPool;
 import net.sourceforge.kolmafia.objectpool.EffectPool;
 import net.sourceforge.kolmafia.objectpool.ItemPool;
 import net.sourceforge.kolmafia.objectpool.SkillPool;
+import net.sourceforge.kolmafia.preferences.PreferencePool;
 import net.sourceforge.kolmafia.preferences.Preferences;
+import net.sourceforge.kolmafia.request.SushiRequest;
 import net.sourceforge.kolmafia.request.UseSkillRequest;
 import net.sourceforge.kolmafia.session.EquipmentManager;
 import net.sourceforge.kolmafia.session.InventoryManager;
@@ -356,8 +358,7 @@ public class ConsumablesDatabase {
       if (consumable.getConsumptionType() == ConsumptionType.EAT) {
         int multiplier = 1;
         if (KoLCharacter.hasSkill(SkillPool.EXTRA_GALL_BLADDER)) multiplier += 1;
-        if (KoLConstants.activeEffects.contains(EffectPool.get(EffectPool.RECORD_HUNGER)))
-          multiplier += 1;
+        if (KoLConstants.activeEffects.contains(ConsumablesDatabase.RECORD_HUNGER)) multiplier += 1;
         start *= multiplier;
         end *= multiplier;
       }
@@ -365,7 +366,7 @@ public class ConsumablesDatabase {
       else if (consumable.getConsumptionType() == ConsumptionType.DRINK) {
         int multiplier = 1;
         if (KoLCharacter.hasSkill(SkillPool.EXTRA_KIDNEY)) multiplier += 1;
-        if (KoLConstants.activeEffects.contains(EffectPool.get(EffectPool.DRUNK_AVUNCULAR)))
+        if (KoLConstants.activeEffects.contains(ConsumablesDatabase.DRUNK_AVUNCULAR))
           multiplier += 1;
         start *= multiplier;
         end *= multiplier;
@@ -647,7 +648,7 @@ public class ConsumablesDatabase {
 
   public static final String getNotes(final String name) {
     Consumable consumable = ConsumablesDatabase.consumableByName.get(name);
-    return consumable == null ? null : consumable.notes;
+    return consumable == null ? null : consumable.getNotes();
   }
 
   private static final Pattern PVP_NOTES_PATTERN =
@@ -703,8 +704,8 @@ public class ConsumablesDatabase {
     if (consumable.isMartini()) {
       // If we have Tuxedo Shirt equipped, or can get it equipped and have autoTuxedo set, apply 1-3
       // bonus adventures
-      if (KoLCharacter.hasEquipped(ItemPool.get(ItemPool.TUXEDO_SHIRT, 1))
-          || Preferences.getBoolean("autoTuxedo")
+      if (KoLCharacter.hasEquipped(ItemPool.TUXEDO_SHIRT, EquipmentManager.SHIRT)
+          || PreferencePool.autoTuxedo.get()
               && EquipmentManager.canEquip(ItemPool.TUXEDO_SHIRT)
               && InventoryManager.itemAvailable(ItemPool.TUXEDO_SHIRT)) {
         return perUnit ? (2.0 / inebriety) : 2.0;
@@ -721,7 +722,7 @@ public class ConsumablesDatabase {
       for (int i = start; i <= end; i++) {
         bonus += refinedPalate ? Math.floor(i * 0.25) / (end - start + 1) : 0.0;
         if (KoLCharacter.hasEquipped(ItemPool.get(ItemPool.MAFIA_PINKY_RING, 1))
-            || Preferences.getBoolean("autoPinkyRing")
+            || PreferencePool.autoPinkyRing.get()
                 && EquipmentManager.canEquip(ItemPool.MAFIA_PINKY_RING)
                 && InventoryManager.itemAvailable(ItemPool.MAFIA_PINKY_RING)) {
           double adjustedBase = refinedPalate ? Math.floor(i * 1.25) : i;
@@ -735,7 +736,7 @@ public class ConsumablesDatabase {
       // adventures
       if (!HolidayDatabase.isMonday()
           && (KoLConstants.activeEffects.contains(EffectPool.get(EffectPool.GARISH))
-              || Preferences.getBoolean("autoGarish")
+              || PreferencePool.autoGarish.get()
                   && (KoLCharacter.hasSkill(SkillPool.CLIP_ART)
                           && UseSkillRequest.getUnmodifiedInstance(SkillPool.CLIP_ART)
                                   .getMaximumCast()
@@ -787,10 +788,8 @@ public class ConsumablesDatabase {
   }
 
   private static boolean areAdventuresBoosted(Consumable consumable) {
-    return switch (ConcoctionDatabase.getMixingMethod(consumable.itemId, consumable.name)) {
-      case SUSHI, STILLSUIT -> false;
-      default -> true;
-    };
+    return !consumable.name.equals("stillsuit distillate")
+        && SushiRequest.isSushiName(consumable.name) == null;
   }
 
   public static double getAverageAdventures(final String name) {
@@ -808,20 +807,20 @@ public class ConsumablesDatabase {
 
     String name = consumable.name;
 
-    boolean perUnit = Preferences.getBoolean("showGainsPerUnit");
+    boolean perUnit = PreferencePool.showGainsPerUnit.get();
     Double range = null;
 
     var adventuresBoosted = areAdventuresBoosted(consumable);
 
     if (consumable.getRawFullness() != null) {
-      boolean milk = Preferences.getBoolean("milkOfMagnesiumActive");
+      boolean milk = PreferencePool.milkOfMagnesiumActive.get();
       boolean lunch =
           KoLConstants.activeEffects.contains(ConsumablesDatabase.GLORIOUS_LUNCH)
               || ConsumablesDatabase.BARREL_OF_LAUGHS.getCount(KoLConstants.activeEffects) >= 5;
       boolean gourmand =
           KoLCharacter.hasSkill(SkillPool.GOURMAND)
               || KoLCharacter.hasSkill(SkillPool.NEUROGOURMET);
-      boolean munchies = Preferences.getInteger("munchiesPillsUsed") > 0;
+      boolean munchies = PreferencePool.munchiesPillsUsed.get() > 0;
       range =
           ConsumablesDatabase.getAdventureMap(
                   perUnit,
@@ -860,7 +859,7 @@ public class ConsumablesDatabase {
   }
 
   private static int getStatUnit(Consumable consumable) {
-    if (!Preferences.getBoolean("showGainsPerUnit")) {
+    if (!PreferencePool.showGainsPerUnit.get()) {
       return 1;
     }
     int unit = consumable.getFullness() + consumable.getInebriety() + consumable.getSpleenHit();
@@ -943,14 +942,14 @@ public class ConsumablesDatabase {
   private static boolean hasAttribute(final int itemId, final Attribute attribute) {
     Consumable consumable = ConsumablesDatabase.consumableByItemId.get(itemId);
     return consumable != null
-        && consumable.notes != null
-        && consumable.notes.contains(attribute.name());
+        && consumable.getNotes() != null
+        && consumable.getNotes().contains(attribute.name());
   }
 
   public static Set<Attribute> getAttributes(final Consumable consumable) {
-    if (consumable == null || consumable.notes == null) return Set.of();
+    if (consumable == null || consumable.getNotes() == null) return Set.of();
     return Arrays.stream(Attribute.values())
-        .filter(a -> consumable.notes.contains(a.name()))
+        .filter(a -> consumable.getNotes().contains(a.name()))
         .collect(Collectors.toSet());
   }
 

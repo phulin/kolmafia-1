@@ -20,7 +20,17 @@ public class Consumable {
   public ConsumablesDatabase.ConsumableQuality quality;
   public String adventureRange;
   public String[] statRangeStrings;
-  public String notes;
+  private String notes;
+
+  private boolean martini;
+  private boolean lasagna;
+  private boolean saucy;
+  private boolean pizza;
+  private boolean beans;
+  private boolean wine;
+  private boolean salad;
+  private boolean beer;
+  private boolean cannedBeer;
 
   public int itemId;
   public int adventureStart;
@@ -50,6 +60,16 @@ public class Consumable {
     this.statRangeStrings = statRangeStrings;
     this.notes = notes;
     this.aliases = aliases;
+
+    this.martini = this.notes != null && this.notes.contains("MARTINI");
+    this.lasagna = this.notes != null && this.notes.contains("LASAGNA");
+    this.saucy = this.notes != null && this.notes.contains("SAUCY");
+    this.pizza = this.notes != null && this.notes.contains("PIZZA");
+    this.beans = this.notes != null && this.notes.contains("BEANS");
+    this.wine = this.notes != null && this.notes.contains("WINE");
+    this.salad = this.notes != null && this.notes.contains("SALAD");
+    this.beer = this.notes != null && this.notes.contains("BEER");
+    this.cannedBeer = this.notes != null && this.notes.contains("CANNED");
 
     this.itemId = ItemDatabase.getItemId(this.name, 1, false);
 
@@ -124,6 +144,10 @@ public class Consumable {
     return this.statRanges[stat];
   }
 
+  public String getNotes() {
+    return this.notes;
+  }
+
   public String toString() {
     return this.name
         + "\t"
@@ -140,38 +164,38 @@ public class Consumable {
   }
 
   public boolean isMartini() {
-    return this.notes != null && this.notes.contains("MARTINI");
+    return this.martini;
   }
 
   public boolean isLasagna() {
-    return this.notes != null && this.notes.contains("LASAGNA");
+    return this.lasagna;
   }
 
   public boolean isSaucy() {
-    return this.notes != null && this.notes.contains("SAUCY");
+    return this.saucy;
   }
 
   public boolean isPizza() {
-    return this.notes != null && this.notes.contains("PIZZA");
+    return this.pizza;
   }
 
   public boolean isBeans() {
-    return this.notes != null && this.notes.contains("BEANS");
+    return this.beans;
   }
 
   public boolean isWine() {
-    return this.notes != null && this.notes.contains("WINE");
+    return this.wine;
   }
 
   public boolean isSalad() {
-    return this.notes != null && this.notes.contains("SALAD");
+    return this.salad;
   }
 
   public boolean isBeer() {
-    return this.notes != null && this.notes.contains("BEER");
+    return this.beer;
   }
 
   public boolean isCannedBeer() {
-    return this.notes != null && this.notes.contains("CANNED");
+    return this.cannedBeer;
   }
 }
