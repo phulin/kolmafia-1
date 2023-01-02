@@ -1,7 +1,6 @@
 package net.sourceforge.kolmafia.textui.command;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.stream.Collectors;
 import net.sourceforge.kolmafia.AdventureResult;
 import net.sourceforge.kolmafia.KoLConstants;
@@ -9,6 +8,7 @@ import net.sourceforge.kolmafia.KoLConstants.MafiaState;
 import net.sourceforge.kolmafia.KoLmafia;
 import net.sourceforge.kolmafia.RequestLogger;
 import net.sourceforge.kolmafia.RequestThread;
+import net.sourceforge.kolmafia.items.Repository;
 import net.sourceforge.kolmafia.listener.PreferenceListenerRegistry;
 import net.sourceforge.kolmafia.persistence.EquipmentDatabase;
 import net.sourceforge.kolmafia.persistence.ItemFinder;
@@ -31,7 +31,7 @@ public class ClosetCommand extends AbstractCommand {
     }
 
     if (parameters.length() <= 4) {
-      RequestLogger.printList(KoLConstants.closet);
+      RequestLogger.printList(KoLConstants.closet.asAdventureResults());
       return;
     }
 
@@ -52,7 +52,7 @@ public class ClosetCommand extends AbstractCommand {
       return;
     }
 
-    List<AdventureResult> source = isTake ? KoLConstants.closet : KoLConstants.inventory;
+    Repository source = isTake ? KoLConstants.closet : KoLConstants.inventory;
     AdventureResult[] itemList = ItemFinder.getMatchingItemList(parameters, source);
 
     if (itemList.length == 0) {

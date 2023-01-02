@@ -5084,14 +5084,14 @@ public abstract class KoLCharacter {
     }
 
     // Add modifiers from campground equipment.
-    for (int i = 0; i < KoLConstants.campground.size(); ++i) {
-      AdventureResult item = KoLConstants.campground.get(i);
+    for (Map.Entry<Integer, Integer> entry : KoLConstants.campground.entrySet()) {
+      int itemId = entry.getKey();
       // Skip ginormous pumpkin growing in garden
-      if (item.getItemId() == ItemPool.GINORMOUS_PUMPKIN) {
+      if (itemId == ItemPool.GINORMOUS_PUMPKIN) {
         continue;
       }
-      for (int count = item.getCount(); count > 0; --count) {
-        newModifiers.add(Modifiers.getItemModifiers(item.getItemId()));
+      for (int count = entry.getValue(); count > 0; --count) {
+        newModifiers.add(Modifiers.getItemModifiers(itemId));
       }
     }
 

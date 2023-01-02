@@ -1,9 +1,9 @@
 package net.sourceforge.kolmafia.textui.command;
 
-import java.util.List;
 import net.sourceforge.kolmafia.AdventureResult;
 import net.sourceforge.kolmafia.KoLConstants;
 import net.sourceforge.kolmafia.RequestThread;
+import net.sourceforge.kolmafia.items.Repository;
 import net.sourceforge.kolmafia.persistence.ItemFinder;
 import net.sourceforge.kolmafia.request.ClanStashRequest;
 import net.sourceforge.kolmafia.session.ClanManager;
@@ -15,7 +15,7 @@ public class ClanStashCommand extends AbstractCommand {
 
   @Override
   public void run(final String cmd, String parameters) {
-    List<AdventureResult> list = null;
+    Repository list = null;
     int direction = ClanStashRequest.ITEMS_TO_STASH;
 
     int space = parameters.indexOf(" ");

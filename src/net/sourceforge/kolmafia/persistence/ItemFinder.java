@@ -16,6 +16,7 @@ import net.sourceforge.kolmafia.KoLConstants.MafiaState;
 import net.sourceforge.kolmafia.KoLmafia;
 import net.sourceforge.kolmafia.KoLmafiaCLI;
 import net.sourceforge.kolmafia.RequestLogger;
+import net.sourceforge.kolmafia.items.Repository;
 import net.sourceforge.kolmafia.objectpool.ItemPool;
 import net.sourceforge.kolmafia.persistence.ItemDatabase.Attribute;
 import net.sourceforge.kolmafia.preferences.Preferences;
@@ -314,10 +315,7 @@ public class ItemFinder {
   }
 
   public static AdventureResult getFirstMatchingItem(
-      String parameters,
-      boolean errorOnFailure,
-      List<AdventureResult> sourceList,
-      Match filterType) {
+      String parameters, boolean errorOnFailure, Repository sourceList, Match filterType) {
     // Ignore spaces and tabs at ends of the parameter string
     parameters = parameters.trim();
 
@@ -548,18 +546,17 @@ public class ItemFinder {
     return ItemFinder.getMatchingItemList(itemList, errorOnFailure, null, Match.ANY);
   }
 
-  public static AdventureResult[] getMatchingItemList(
-      String itemList, List<AdventureResult> sourceList) {
+  public static AdventureResult[] getMatchingItemList(String itemList, Repository sourceList) {
     return ItemFinder.getMatchingItemList(itemList, true, sourceList, Match.ANY);
   }
 
   public static AdventureResult[] getMatchingItemList(
-      String itemList, boolean errorOnFailure, List<AdventureResult> sourceList) {
+      String itemList, boolean errorOnFailure, Repository sourceList) {
     return ItemFinder.getMatchingItemList(itemList, errorOnFailure, sourceList, Match.ANY);
   }
 
   public static AdventureResult[] getMatchingItemList(
-      String itemList, boolean errorOnFailure, List<AdventureResult> sourceList, Match filterType) {
+      String itemList, boolean errorOnFailure, Repository sourceList, Match filterType) {
     AdventureResult firstMatch =
         ItemFinder.getFirstMatchingItem(itemList, false, sourceList, filterType);
     if (firstMatch != null) {

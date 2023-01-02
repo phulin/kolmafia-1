@@ -21,6 +21,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import net.java.dev.spellcast.utilities.UtilityConstants;
 import net.sourceforge.kolmafia.chat.StyledChatBuffer;
+import net.sourceforge.kolmafia.items.Repository;
 import net.sourceforge.kolmafia.request.UseSkillRequest;
 import net.sourceforge.kolmafia.session.EncounterManager.RegisteredEncounter;
 import net.sourceforge.kolmafia.swingui.menu.PartialMRUList;
@@ -616,15 +617,15 @@ public interface KoLConstants extends UtilityConstants {
 
   List<String> saveStateNames = LockableListFactory.getSortedInstance(String.class);
 
-  List<AdventureResult> inventory = LockableListFactory.getSortedInstance(AdventureResult.class);
-  List<AdventureResult> closet = LockableListFactory.getSortedInstance(AdventureResult.class);
-  List<AdventureResult> storage = LockableListFactory.getSortedInstance(AdventureResult.class);
-  List<AdventureResult> unlimited = LockableListFactory.getSortedInstance(AdventureResult.class);
-  List<AdventureResult> freepulls = LockableListFactory.getSortedInstance(AdventureResult.class);
-  List<AdventureResult> nopulls = LockableListFactory.getSortedInstance(AdventureResult.class);
-  List<AdventureResult> collection = LockableListFactory.getSortedInstance(AdventureResult.class);
-  List<AdventureResult> campground = LockableListFactory.getSortedInstance(AdventureResult.class);
-  List<AdventureResult> chateau = LockableListFactory.getSortedInstance(AdventureResult.class);
+  Repository inventory = new Repository(Repository.Type.INVENTORY);
+  Repository closet = new Repository(Repository.Type.CLOSET);
+  Repository storage = new Repository(Repository.Type.STORAGE);
+  Repository unlimited = new Repository(Repository.Type.UNLIMITED);
+  Repository freepulls = new Repository(Repository.Type.FREEPULL);
+  Repository nopulls = new Repository(Repository.Type.NOPULL);
+  Repository collection = new Repository(Repository.Type.COLLECTION);
+  Repository campground = new Repository(Repository.Type.CAMPGROUND);
+  Repository chateau = new Repository(Repository.Type.CHATEAU);
   List<AdventureResult> falloutShelter =
       LockableListFactory.getSortedInstance(AdventureResult.class);
   List<AdventureResult> pulverizeQueue =

@@ -14,7 +14,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import net.java.dev.spellcast.utilities.DataUtilities;
 import net.java.dev.spellcast.utilities.LockableListModel;
-import net.java.dev.spellcast.utilities.SortedListModel;
 import net.sourceforge.kolmafia.AdventureResult;
 import net.sourceforge.kolmafia.KoLCharacter;
 import net.sourceforge.kolmafia.KoLConstants;
@@ -25,6 +24,7 @@ import net.sourceforge.kolmafia.RequestLogger;
 import net.sourceforge.kolmafia.RequestThread;
 import net.sourceforge.kolmafia.StaticEntity;
 import net.sourceforge.kolmafia.chat.ChatManager;
+import net.sourceforge.kolmafia.items.Repository;
 import net.sourceforge.kolmafia.objectpool.Concoction;
 import net.sourceforge.kolmafia.objectpool.ConcoctionPool;
 import net.sourceforge.kolmafia.objectpool.ItemPool;
@@ -68,7 +68,7 @@ public abstract class ClanManager {
   private static final List<?> battleList = new ArrayList<>();
 
   private static final LockableListModel<String> rankList = new LockableListModel<>();
-  private static final SortedListModel<AdventureResult> stashContents = new SortedListModel<>();
+  private static final Repository stashContents = new Repository(Repository.Type.STASH);
 
   public static final AdventureResult HOT_DOG_STAND = ItemPool.get(ItemPool.CLAN_HOT_DOG_STAND, 1);
   public static final AdventureResult SPEAKEASY = ItemPool.get(ItemPool.CLAN_SPEAKEASY, 1);
@@ -218,7 +218,7 @@ public abstract class ClanManager {
     ClanManager.stashRetrieved = true;
   }
 
-  public static final LockableListModel<AdventureResult> getStash() {
+  public static final Repository getStash() {
     if (!ClanManager.isStashRetrieved() && !GenericRequest.abortIfInFightOrChoice(true)) {
       RequestThread.postRequest(new ClanStashRequest());
     }

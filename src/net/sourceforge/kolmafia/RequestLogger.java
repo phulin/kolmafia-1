@@ -1,8 +1,8 @@
 package net.sourceforge.kolmafia;
 
 import java.io.PrintStream;
+import java.util.Collection;
 import java.util.Date;
-import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import net.sourceforge.kolmafia.KoLConstants.MafiaState;
@@ -49,7 +49,7 @@ public class RequestLogger extends NullStream {
     RequestLogger.printLine(line);
   }
 
-  public static void printList(final List<?> printing, final PrintStream ostream) {
+  public static void printList(final Collection<?> printing, final PrintStream ostream) {
     if (printing == null || ostream == null) {
       return;
     }
@@ -78,7 +78,7 @@ public class RequestLogger extends NullStream {
     KoLConstants.commandBuffer.append(buffer.toString());
   }
 
-  public static void printList(final List<?> printing) {
+  public static void printList(final Collection<?> printing) {
     RequestLogger.printList(printing, INSTANCE);
   }
 

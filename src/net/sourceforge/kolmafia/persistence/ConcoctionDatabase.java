@@ -1224,10 +1224,9 @@ public class ConcoctionDatabase {
     // Because we do many lookups to the available ingredients to see how many there are,
     // having an O(1) lookup helps a lot. Initial size is set at list * 2 with default 0.75 load
     // factor.
-    Map<Integer, AdventureResult> availableIngredients =
-        new HashMap<>(availableIngredientsList.size() * 2);
+    Map<Integer, Integer> availableIngredients = new HashMap<>(availableIngredientsList.size() * 2);
     for (AdventureResult item : availableIngredientsList) {
-      availableIngredients.put(item.getItemId(), item);
+      availableIngredients.put(item.getItemId(), item.getCount());
     }
 
     // Iterate through the concoction table, Initialize each one
