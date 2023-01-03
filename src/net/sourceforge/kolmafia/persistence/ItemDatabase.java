@@ -35,6 +35,7 @@ import net.sourceforge.kolmafia.objectpool.ConcoctionPool;
 import net.sourceforge.kolmafia.objectpool.EffectPool;
 import net.sourceforge.kolmafia.objectpool.ItemPool;
 import net.sourceforge.kolmafia.objectpool.SkillPool;
+import net.sourceforge.kolmafia.objecttypes.Item;
 import net.sourceforge.kolmafia.persistence.ConsumablesDatabase.DustyBottle;
 import net.sourceforge.kolmafia.preferences.Preferences;
 import net.sourceforge.kolmafia.request.ApiRequest;
@@ -75,6 +76,8 @@ public class ItemDatabase {
 
   private static final Map<Integer, int[]> itemSourceByNoobSkillId = new HashMap<>();
   private static final Map<Integer, Integer> noobSkillIdByItemSource = new HashMap<>();
+
+  private static final Map<Integer, Item> itemObjectById = new HashMap<>();
 
   public static final String QUEST_FLAG = "q";
   public static final String GIFT_FLAG = "g";
@@ -367,8 +370,9 @@ public class ItemDatabase {
 
         ItemDatabase.nameLength.put(itemId, displayName.length());
 
+        String plural = null;
         if (data.length == 8) {
-          String plural = data[7];
+          plural = data[7];
           ItemDatabase.pluralById.put(itemId, plural);
           ItemDatabase.itemIdByPlural.put(StringUtilities.getCanonicalName(plural), id);
         }
@@ -395,6 +399,10 @@ public class ItemDatabase {
           ItemDatabase.addIdToNoobSkill(skillId, itemId);
           ItemDatabase.noobSkillIdByItemSource.put(itemId, skillId);
         }
+
+        ItemDatabase.itemObjectById.put(itemId, new Item(
+          itemId, name, plural, image, attrs,
+        ));
       }
     } catch (IOException e) {
       StaticEntity.printStackTrace(e);
