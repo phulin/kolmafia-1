@@ -13,13 +13,13 @@ import net.sourceforge.kolmafia.AdventureResult;
 import net.sourceforge.kolmafia.FamiliarData;
 import net.sourceforge.kolmafia.KoLCharacter;
 import net.sourceforge.kolmafia.KoLConstants;
-import net.sourceforge.kolmafia.KoLConstants.ConsumptionType;
 import net.sourceforge.kolmafia.KoLConstants.CraftingType;
 import net.sourceforge.kolmafia.KoLGUIConstants;
 import net.sourceforge.kolmafia.Modifiers;
 import net.sourceforge.kolmafia.objectpool.Concoction;
 import net.sourceforge.kolmafia.objectpool.EffectPool;
 import net.sourceforge.kolmafia.objectpool.ItemPool;
+import net.sourceforge.kolmafia.objecttypes.ItemType;
 import net.sourceforge.kolmafia.persistence.ConcoctionDatabase.QueuedConcoction;
 import net.sourceforge.kolmafia.persistence.ConsumablesDatabase;
 import net.sourceforge.kolmafia.persistence.EffectDatabase;
@@ -755,12 +755,12 @@ public class ListCellRendererFactory {
       JLabel defaultComponent =
           (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 
-      ConsumptionType equipmentType = ItemDatabase.getConsumptionType(ar.getItemId());
+      ItemType equipmentType = ItemDatabase.getConsumptionType(ar.getItemId());
 
       int power = EquipmentDatabase.getPower(ar.getItemId());
       String stringForm;
 
-      if (equipmentType == ConsumptionType.FAMILIAR_EQUIPMENT) {
+      if (equipmentType == ItemType.FAMILIAR_EQUIPMENT) {
         stringForm = ar.getName();
 
         String effect = Modifiers.getFamiliarEffect(ar.getName());
@@ -774,7 +774,7 @@ public class ListCellRendererFactory {
       } else if (ar.equals(EquipmentRequest.UNEQUIP)) {
         stringForm = ar.getName();
       } else {
-        if (equipmentType == ConsumptionType.ACCESSORY) {
+        if (equipmentType == ItemType.ACCESSORY) {
           int count;
           Modifiers mods = Modifiers.getItemModifiers(ar.getItemId());
           if (mods != null && mods.getBoolean(Modifiers.SINGLE)) {

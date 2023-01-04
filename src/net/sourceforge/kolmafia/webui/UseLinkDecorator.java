@@ -9,7 +9,6 @@ import java.util.regex.Pattern;
 import net.sourceforge.kolmafia.AdventureResult;
 import net.sourceforge.kolmafia.AscensionClass;
 import net.sourceforge.kolmafia.KoLCharacter;
-import net.sourceforge.kolmafia.KoLConstants.ConsumptionType;
 import net.sourceforge.kolmafia.KoLConstants.CraftingRequirements;
 import net.sourceforge.kolmafia.KoLConstants.CraftingType;
 import net.sourceforge.kolmafia.Modifiers;
@@ -17,6 +16,7 @@ import net.sourceforge.kolmafia.Speculation;
 import net.sourceforge.kolmafia.objectpool.EffectPool;
 import net.sourceforge.kolmafia.objectpool.ItemPool;
 import net.sourceforge.kolmafia.objectpool.SkillPool;
+import net.sourceforge.kolmafia.objecttypes.ItemType;
 import net.sourceforge.kolmafia.persistence.ConcoctionDatabase;
 import net.sourceforge.kolmafia.persistence.ConsumablesDatabase;
 import net.sourceforge.kolmafia.persistence.EffectDatabase;
@@ -366,8 +366,8 @@ public abstract class UseLinkDecorator {
     }
 
     // Skip items which are multi-use.
-    ConsumptionType consumeMethod = ItemDatabase.getConsumptionType(itemId);
-    if (consumeMethod == ConsumptionType.USE_MULTIPLE) {
+    ItemType consumeMethod = ItemDatabase.getConsumptionType(itemId);
+    if (consumeMethod == ItemType.USE_MULTIPLE) {
       return CraftingType.NOCREATE;
     }
 
@@ -554,14 +554,14 @@ public abstract class UseLinkDecorator {
       }
     }
 
-    ConsumptionType consumeMethod = ItemDatabase.getConsumptionType(itemId);
+    ItemType consumeMethod = ItemDatabase.getConsumptionType(itemId);
     CraftingType mixingMethod = shouldAddCreateLink(itemId, location);
 
     if (mixingMethod != CraftingType.NOCREATE) {
       return getCreateLink(itemId, itemCount, mixingMethod);
     }
 
-    if (consumeMethod == ConsumptionType.NONE) {
+    if (consumeMethod == ItemType.NONE) {
       return getNavigationLink(itemId, location);
     }
 
@@ -588,11 +588,7 @@ public abstract class UseLinkDecorator {
   }
 
   private static UseLink getUseLink(
-      int itemId,
-      int itemCount,
-      String location,
-      ConsumptionType consumeMethod,
-      final String text) {
+      int itemId, int itemCount, String location, ItemType consumeMethod, final String text) {
     if (!ConsumablesDatabase.meetsLevelRequirement(ItemDatabase.getItemName(itemId))) {
       return null;
     }
@@ -830,7 +826,7 @@ public abstract class UseLinkDecorator {
           }
 
           if (useCount == 1) {
-            String page = (consumeMethod == ConsumptionType.USE_MULTIPLE) ? "3" : "1";
+            String page = (consumeMethod == ItemType.USE_MULTIPLE) ? "3" : "1";
             return new UseLink(
                 itemId,
                 useCount,
@@ -1316,7 +1312,7 @@ public abstract class UseLinkDecorator {
 
         // Don't offer an "equip" link for weapons or offhands
         // in Fistcore or Axecore
-        if ((consumeMethod == ConsumptionType.WEAPON || consumeMethod == ConsumptionType.OFFHAND)
+        if ((consumeMethod == ItemType.WEAPON || consumeMethod == ItemType.OFFHAND)
             && (KoLCharacter.inFistcore() || KoLCharacter.inAxecore())) {
           return null;
         }
@@ -1334,7 +1330,7 @@ public abstract class UseLinkDecorator {
                   "inv_equip.php?action=outfit&which=2&whichoutfit=" + outfit));
         }
 
-        if (consumeMethod == ConsumptionType.ACCESSORY
+        if (consumeMethod == ItemType.ACCESSORY
             && !EquipmentManager.getEquipment(EquipmentManager.ACCESSORY1)
                 .equals(EquipmentRequest.UNEQUIP)
             && !EquipmentManager.getEquipment(EquipmentManager.ACCESSORY2)
@@ -1359,7 +1355,7 @@ public abstract class UseLinkDecorator {
                   itemCount,
                   getEquipmentSpeculation("acc3", itemId, EquipmentManager.ACCESSORY3),
                   "inv_equip.php?which=2&action=equip&slot=3&whichitem="));
-        } else if (consumeMethod == ConsumptionType.SIXGUN) {
+        } else if (consumeMethod == ItemType.SIXGUN) {
           // Only as WOL class
           if (KoLCharacter.getAscensionClass() != AscensionClass.COWPUNCHER
               && KoLCharacter.getAscensionClass() != AscensionClass.BEANSLINGER
@@ -1389,13 +1385,13 @@ public abstract class UseLinkDecorator {
           // triumphantly and trying really hard not to think about how oddly
           // chilly it has suddenly become.
 
-          if (consumeMethod == ConsumptionType.PANTS
+          if (consumeMethod == ItemType.PANTS
               && text.contains("steal the pants from your unsuspecting self")) {
             uses.add(new UseLink(itemId, "guild", "guild.php?place=challenge"));
           }
         }
 
-        if (consumeMethod == ConsumptionType.WEAPON
+        if (consumeMethod == ItemType.WEAPON
             && EquipmentDatabase.getHands(itemId) == 1
             && EquipmentDatabase.getHands(
                     EquipmentManager.getEquipment(EquipmentManager.WEAPON).getItemId())
@@ -1409,7 +1405,7 @@ public abstract class UseLinkDecorator {
                   "inv_equip.php?which=2&action=dualwield&whichitem="));
         }
 
-        if (consumeMethod != ConsumptionType.FAMILIAR_EQUIPMENT
+        if (consumeMethod != ItemType.FAMILIAR_EQUIPMENT
             && KoLCharacter.getFamiliar().canEquip(ItemPool.get(itemId, 1))) {
           uses.add(
               new UseLink(

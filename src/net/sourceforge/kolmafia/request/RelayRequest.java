@@ -24,7 +24,6 @@ import net.sourceforge.kolmafia.FamiliarData;
 import net.sourceforge.kolmafia.KoLAdventure;
 import net.sourceforge.kolmafia.KoLCharacter;
 import net.sourceforge.kolmafia.KoLConstants;
-import net.sourceforge.kolmafia.KoLConstants.ConsumptionType;
 import net.sourceforge.kolmafia.KoLmafia;
 import net.sourceforge.kolmafia.KoLmafiaASH;
 import net.sourceforge.kolmafia.Modifiers;
@@ -46,6 +45,7 @@ import net.sourceforge.kolmafia.objectpool.EffectPool;
 import net.sourceforge.kolmafia.objectpool.FamiliarPool;
 import net.sourceforge.kolmafia.objectpool.ItemPool;
 import net.sourceforge.kolmafia.objectpool.OutfitPool;
+import net.sourceforge.kolmafia.objecttypes.ItemType;
 import net.sourceforge.kolmafia.persistence.AdventureDatabase;
 import net.sourceforge.kolmafia.persistence.AdventureSpentDatabase;
 import net.sourceforge.kolmafia.persistence.EffectDatabase;
@@ -2420,9 +2420,9 @@ public class RelayRequest extends PasswordHashRequest {
     list.removeModifier("Wiki Name");
     list.removeModifier("Modifiers");
     list.removeModifier("Outfit");
-    ConsumptionType type = ItemDatabase.getConsumptionType(itemId);
-    if (!(type == ConsumptionType.HAT && KoLCharacter.usableFamiliar(FamiliarPool.HATRACK) != null)
-        && !(type == ConsumptionType.PANTS
+    ItemType type = ItemDatabase.getConsumptionType(itemId);
+    if (!(type == ItemType.HAT && KoLCharacter.usableFamiliar(FamiliarPool.HATRACK) != null)
+        && !(type == ItemType.PANTS
             && KoLCharacter.usableFamiliar(FamiliarPool.SCARECROW) != null)) {
       list.removeModifier("Familiar Effect");
     }

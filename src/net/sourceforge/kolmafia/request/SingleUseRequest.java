@@ -4,12 +4,12 @@ import java.util.regex.Matcher;
 import net.sourceforge.kolmafia.AdventureResult;
 import net.sourceforge.kolmafia.KoLCharacter;
 import net.sourceforge.kolmafia.KoLConstants;
-import net.sourceforge.kolmafia.KoLConstants.ConsumptionType;
 import net.sourceforge.kolmafia.KoLConstants.MafiaState;
 import net.sourceforge.kolmafia.KoLmafia;
 import net.sourceforge.kolmafia.RequestLogger;
 import net.sourceforge.kolmafia.objectpool.Concoction;
 import net.sourceforge.kolmafia.objectpool.ItemPool;
+import net.sourceforge.kolmafia.objecttypes.ItemType;
 import net.sourceforge.kolmafia.persistence.ConcoctionDatabase;
 import net.sourceforge.kolmafia.persistence.ItemDatabase;
 import net.sourceforge.kolmafia.persistence.ItemDatabase.Attribute;
@@ -32,18 +32,16 @@ public class SingleUseRequest extends CreateItemRequest {
     }
 
     int use = this.ingredients[0].getItemId();
-    ConsumptionType type = ItemDatabase.getConsumptionType(use);
+    ItemType type = ItemDatabase.getConsumptionType(use);
     int count = this.getQuantityNeeded();
 
-    if (type == ConsumptionType.USE
-        || ItemDatabase.getAttribute(use, Attribute.USABLE)
-        || count == 1) {
+    if (type == ItemType.USE || ItemDatabase.getAttribute(use, Attribute.USABLE) || count == 1) {
       this.constructURLString("inv_use.php");
       this.addFormField("which", "3");
       this.addFormField("whichitem", String.valueOf(use));
       this.addFormField("ajax", "1");
-    } else if (type == ConsumptionType.USE_MULTIPLE
-        || type == ConsumptionType.AVATAR_POTION
+    } else if (type == ItemType.USE_MULTIPLE
+        || type == ItemType.AVATAR_POTION
         || ItemDatabase.getAttribute(use, Attribute.MULTIPLE)) {
       this.constructURLString("multiuse.php");
       this.addFormField("action", "useitem");
@@ -80,13 +78,13 @@ public class SingleUseRequest extends CreateItemRequest {
       return;
     }
 
-    ConsumptionType type = ItemDatabase.getConsumptionType(itemId);
+    ItemType type = ItemDatabase.getConsumptionType(itemId);
     int quantity = this.getQuantityNeeded();
     int yield = this.getYield();
     int count = (quantity + yield - 1) / yield;
 
     if (count > 1
-        && (type == ConsumptionType.USE || ItemDatabase.getAttribute(itemId, Attribute.USABLE))) {
+        && (type == ItemType.USE || ItemDatabase.getAttribute(itemId, Attribute.USABLE))) {
       // We have to create one at a time.
       for (int i = 1; i <= count; ++i) {
         KoLmafia.updateDisplay("Creating " + this.getName() + " (" + i + " of " + count + ")...");

@@ -16,7 +16,6 @@ import javax.swing.ListSelectionModel;
 import net.sourceforge.kolmafia.AdventureResult;
 import net.sourceforge.kolmafia.KoLCharacter;
 import net.sourceforge.kolmafia.KoLConstants;
-import net.sourceforge.kolmafia.KoLConstants.ConsumptionType;
 import net.sourceforge.kolmafia.KoLConstants.CraftingType;
 import net.sourceforge.kolmafia.KoLConstants.MafiaState;
 import net.sourceforge.kolmafia.KoLmafia;
@@ -30,6 +29,7 @@ import net.sourceforge.kolmafia.objectpool.EffectPool;
 import net.sourceforge.kolmafia.objectpool.FamiliarPool;
 import net.sourceforge.kolmafia.objectpool.ItemPool;
 import net.sourceforge.kolmafia.objectpool.SkillPool;
+import net.sourceforge.kolmafia.objecttypes.ItemType;
 import net.sourceforge.kolmafia.persistence.ConcoctionDatabase;
 import net.sourceforge.kolmafia.persistence.ConsumablesDatabase;
 import net.sourceforge.kolmafia.persistence.ItemDatabase;
@@ -382,21 +382,21 @@ public class UseItemEnqueuePanel extends ItemListManagePanel<Concoction> impleme
 
       switch (type) {
         case FOOD -> {
-          ConcoctionDatabase.handleQueue(type, ConsumptionType.EAT);
+          ConcoctionDatabase.handleQueue(type, ItemType.EAT);
           UseItemEnqueuePanel.this.queueTabs.setTitleAt(
               0, ConcoctionDatabase.getQueuedFullness() + " Full Queued");
         }
         case BOOZE -> {
-          ConcoctionDatabase.handleQueue(type, ConsumptionType.DRINK);
+          ConcoctionDatabase.handleQueue(type, ItemType.DRINK);
           UseItemEnqueuePanel.this.queueTabs.setTitleAt(
               0, ConcoctionDatabase.getQueuedInebriety() + " Drunk Queued");
         }
         case SPLEEN -> {
-          ConcoctionDatabase.handleQueue(type, ConsumptionType.SPLEEN);
+          ConcoctionDatabase.handleQueue(type, ItemType.SPLEEN);
           UseItemEnqueuePanel.this.queueTabs.setTitleAt(
               0, ConcoctionDatabase.getQueuedSpleenHit() + " Spleen Queued");
         }
-        case POTION -> ConcoctionDatabase.handleQueue(type, ConsumptionType.USE);
+        case POTION -> ConcoctionDatabase.handleQueue(type, ItemType.USE);
       }
       ConcoctionDatabase.getUsables().sort();
     }
@@ -415,7 +415,7 @@ public class UseItemEnqueuePanel extends ItemListManagePanel<Concoction> impleme
 
     @Override
     public void handleQueue() {
-      ConcoctionDatabase.handleQueue(ConcoctionType.FOOD, ConsumptionType.GLUTTONOUS_GHOST);
+      ConcoctionDatabase.handleQueue(ConcoctionType.FOOD, ItemType.GLUTTONOUS_GHOST);
     }
 
     @Override
@@ -437,7 +437,7 @@ public class UseItemEnqueuePanel extends ItemListManagePanel<Concoction> impleme
 
     @Override
     public void handleQueue() {
-      ConcoctionDatabase.handleQueue(ConcoctionType.BOOZE, ConsumptionType.SPIRIT_HOBO);
+      ConcoctionDatabase.handleQueue(ConcoctionType.BOOZE, ItemType.SPIRIT_HOBO);
     }
 
     @Override

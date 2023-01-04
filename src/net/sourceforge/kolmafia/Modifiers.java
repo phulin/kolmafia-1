@@ -25,7 +25,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
-import net.sourceforge.kolmafia.KoLConstants.ConsumptionType;
 import net.sourceforge.kolmafia.listener.PreferenceListenerRegistry;
 import net.sourceforge.kolmafia.maximizer.Maximizer;
 import net.sourceforge.kolmafia.modifiers.BitmapModifier;
@@ -37,6 +36,7 @@ import net.sourceforge.kolmafia.objectpool.EffectPool;
 import net.sourceforge.kolmafia.objectpool.FamiliarPool;
 import net.sourceforge.kolmafia.objectpool.ItemPool;
 import net.sourceforge.kolmafia.objectpool.SkillPool;
+import net.sourceforge.kolmafia.objecttypes.ItemType;
 import net.sourceforge.kolmafia.persistence.AdventureDatabase;
 import net.sourceforge.kolmafia.persistence.DateTimeManager;
 import net.sourceforge.kolmafia.persistence.DebugDatabase;
@@ -2441,9 +2441,9 @@ public class Modifiers {
     // Mad Hatrack ... hats do not give their normal modifiers
     // Fancypants Scarecrow ... pants do not give their normal modifiers
     int itemId = item.getItemId();
-    ConsumptionType type = ItemDatabase.getConsumptionType(itemId);
-    if ((familiarId != FamiliarPool.HATRACK || type != ConsumptionType.HAT)
-        && (familiarId != FamiliarPool.SCARECROW || type != ConsumptionType.PANTS)) {
+    ItemType type = ItemDatabase.getConsumptionType(itemId);
+    if ((familiarId != FamiliarPool.HATRACK || type != ItemType.HAT)
+        && (familiarId != FamiliarPool.SCARECROW || type != ItemType.PANTS)) {
       // Add in all the modifiers bestowed by this item
       tempMods.add(Modifiers.getItemModifiers(itemId));
 
@@ -3478,7 +3478,7 @@ public class Modifiers {
     for (Entry<Integer, String> entry : ItemDatabase.dataNameEntrySet()) {
       Integer key = entry.getKey();
       String name = entry.getValue();
-      ConsumptionType type = ItemDatabase.getConsumptionType(key);
+      ItemType type = ItemDatabase.getConsumptionType(key);
 
       switch (type) {
         case HAT -> hats.add(name);
@@ -3739,8 +3739,7 @@ public class Modifiers {
     writer.println(Modifiers.modifierCommentString(type, name));
   }
 
-  public static final void registerItem(
-      final String name, final String text, final ConsumptionType type) {
+  public static final void registerItem(final String name, final String text, final ItemType type) {
     // Examine the item description and decide what it is.
     ArrayList<String> unknown = new ArrayList<>();
     String known = DebugDatabase.parseItemEnchantments(text, unknown, type);

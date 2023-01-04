@@ -26,12 +26,12 @@ import internal.network.FakeHttpResponse;
 import net.sourceforge.kolmafia.AscensionClass;
 import net.sourceforge.kolmafia.KoLCharacter;
 import net.sourceforge.kolmafia.KoLConstants;
-import net.sourceforge.kolmafia.KoLConstants.ConsumptionType;
 import net.sourceforge.kolmafia.KoLmafia;
 import net.sourceforge.kolmafia.StaticEntity;
 import net.sourceforge.kolmafia.objectpool.FamiliarPool;
 import net.sourceforge.kolmafia.objectpool.ItemPool;
 import net.sourceforge.kolmafia.objectpool.SkillPool;
+import net.sourceforge.kolmafia.objecttypes.ItemType;
 import net.sourceforge.kolmafia.preferences.Preferences;
 import net.sourceforge.kolmafia.session.InventoryManager;
 import net.sourceforge.kolmafia.session.LimitMode;
@@ -236,8 +236,7 @@ class UseItemRequestTest {
       var cleanups = withFullness(fullness);
 
       try (cleanups) {
-        assertThat(
-            UseItemRequest.maximumUses(ItemPool.BASH_OS_CEREAL, ConsumptionType.EAT), is(maxUses));
+        assertThat(UseItemRequest.maximumUses(ItemPool.BASH_OS_CEREAL, ItemType.EAT), is(maxUses));
       }
     }
 
@@ -258,7 +257,7 @@ class UseItemRequestTest {
 
       try (cleanups) {
         assertThat(
-            UseItemRequest.maximumUses(ItemPool.OREILLE_DIVISEE_BRANDY, ConsumptionType.DRINK),
+            UseItemRequest.maximumUses(ItemPool.OREILLE_DIVISEE_BRANDY, ItemType.DRINK),
             is(maxUses));
       }
     }
@@ -280,8 +279,7 @@ class UseItemRequestTest {
 
       try (cleanups) {
         assertThat(
-            UseItemRequest.maximumUses(ItemPool.EXTROVERMECTIN, ConsumptionType.SPLEEN),
-            is(maxUses));
+            UseItemRequest.maximumUses(ItemPool.EXTROVERMECTIN, ItemType.SPLEEN), is(maxUses));
       }
     }
   }

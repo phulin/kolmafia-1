@@ -11,11 +11,11 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import net.sourceforge.kolmafia.FamiliarData;
 import net.sourceforge.kolmafia.KoLCharacter;
-import net.sourceforge.kolmafia.KoLConstants.ConsumptionType;
 import net.sourceforge.kolmafia.Modifiers;
 import net.sourceforge.kolmafia.RequestLogger;
 import net.sourceforge.kolmafia.listener.NamedListenerRegistry;
 import net.sourceforge.kolmafia.objectpool.SkillPool;
+import net.sourceforge.kolmafia.objecttypes.ItemType;
 import net.sourceforge.kolmafia.preferences.Preferences;
 import net.sourceforge.kolmafia.request.EquipmentRequest;
 import net.sourceforge.kolmafia.request.GenericRequest;
@@ -569,7 +569,7 @@ public abstract class YouRobotManager {
   }
 
   // Used by EquipmentManager.canEquip
-  public static boolean canEquip(final ConsumptionType type) {
+  public static boolean canEquip(final ItemType type) {
     return switch (type) {
       case HAT -> hasEquipped(RobotUpgrade.MANNEQUIN_HEAD);
       case WEAPON -> hasEquipped(RobotUpgrade.VICE_GRIPS);

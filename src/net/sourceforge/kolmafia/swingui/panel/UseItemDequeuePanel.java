@@ -9,11 +9,11 @@ import javax.swing.JTabbedPane;
 import javax.swing.ListSelectionModel;
 import net.java.dev.spellcast.utilities.LockableListModel;
 import net.sourceforge.kolmafia.KoLCharacter;
-import net.sourceforge.kolmafia.KoLConstants.ConsumptionType;
 import net.sourceforge.kolmafia.KoLmafiaGUI;
 import net.sourceforge.kolmafia.listener.Listener;
 import net.sourceforge.kolmafia.listener.NamedListenerRegistry;
 import net.sourceforge.kolmafia.objectpool.ConcoctionType;
+import net.sourceforge.kolmafia.objecttypes.ItemType;
 import net.sourceforge.kolmafia.persistence.ConcoctionDatabase;
 import net.sourceforge.kolmafia.persistence.ConcoctionDatabase.QueuedConcoction;
 import net.sourceforge.kolmafia.swingui.button.ThreadedButton;
@@ -141,21 +141,21 @@ public class UseItemDequeuePanel extends ItemListManagePanel<QueuedConcoction> i
     protected void execute() {
       switch (UseItemDequeuePanel.this.type) {
         case FOOD -> {
-          ConcoctionDatabase.handleQueue(type, ConsumptionType.EAT);
+          ConcoctionDatabase.handleQueue(type, ItemType.EAT);
           UseItemDequeuePanel.this.queueTabs.setTitleAt(
               0, ConcoctionDatabase.getQueuedFullness() + " Full Queued");
         }
         case BOOZE -> {
-          ConcoctionDatabase.handleQueue(type, ConsumptionType.DRINK);
+          ConcoctionDatabase.handleQueue(type, ItemType.DRINK);
           UseItemDequeuePanel.this.queueTabs.setTitleAt(
               0, ConcoctionDatabase.getQueuedInebriety() + " Drunk Queued");
         }
         case SPLEEN -> {
-          ConcoctionDatabase.handleQueue(type, ConsumptionType.SPLEEN);
+          ConcoctionDatabase.handleQueue(type, ItemType.SPLEEN);
           UseItemDequeuePanel.this.queueTabs.setTitleAt(
               0, ConcoctionDatabase.getQueuedSpleenHit() + " Spleen Queued");
         }
-        case POTION -> ConcoctionDatabase.handleQueue(type, ConsumptionType.USE);
+        case POTION -> ConcoctionDatabase.handleQueue(type, ItemType.USE);
       }
       ConcoctionDatabase.getUsables().sort();
     }
@@ -171,16 +171,16 @@ public class UseItemDequeuePanel extends ItemListManagePanel<QueuedConcoction> i
     protected void execute() {
       switch (UseItemDequeuePanel.this.type) {
         case FOOD -> {
-          ConcoctionDatabase.handleQueue(type, ConsumptionType.NONE);
+          ConcoctionDatabase.handleQueue(type, ItemType.NONE);
           UseItemDequeuePanel.this.queueTabs.setTitleAt(
               0, ConcoctionDatabase.getQueuedFullness() + " Full Queued");
         }
         case BOOZE -> {
-          ConcoctionDatabase.handleQueue(type, ConsumptionType.NONE);
+          ConcoctionDatabase.handleQueue(type, ItemType.NONE);
           UseItemDequeuePanel.this.queueTabs.setTitleAt(
               0, ConcoctionDatabase.getQueuedInebriety() + " Drunk Queued");
         }
-        case POTION -> ConcoctionDatabase.handleQueue(type, ConsumptionType.NONE);
+        case POTION -> ConcoctionDatabase.handleQueue(type, ItemType.NONE);
       }
       ConcoctionDatabase.getUsables().sort();
     }

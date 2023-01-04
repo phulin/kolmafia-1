@@ -10,13 +10,14 @@ import net.sourceforge.kolmafia.AdventureResult;
 import net.sourceforge.kolmafia.AdventureResult.AdventureLongCountResult;
 import net.sourceforge.kolmafia.KoLCharacter;
 import net.sourceforge.kolmafia.KoLConstants;
-import net.sourceforge.kolmafia.KoLConstants.ConsumptionType;
 import net.sourceforge.kolmafia.KoLConstants.CraftingType;
 import net.sourceforge.kolmafia.KoLConstants.MafiaState;
 import net.sourceforge.kolmafia.KoLmafia;
 import net.sourceforge.kolmafia.KoLmafiaCLI;
 import net.sourceforge.kolmafia.RequestLogger;
+import net.sourceforge.kolmafia.items.Repository;
 import net.sourceforge.kolmafia.objectpool.ItemPool;
+import net.sourceforge.kolmafia.objecttypes.ItemType;
 import net.sourceforge.kolmafia.persistence.ItemDatabase.Attribute;
 import net.sourceforge.kolmafia.preferences.Preferences;
 import net.sourceforge.kolmafia.request.CombineMeatRequest;
@@ -182,21 +183,19 @@ public class ItemFinder {
         continue;
       }
 
-      ConsumptionType useType = ItemDatabase.getConsumptionType(itemId);
+      ItemType useType = ItemDatabase.getConsumptionType(itemId);
 
       switch (filterType) {
         case FOOD:
           ItemFinder.conditionalRemove(
-              nameIterator,
-              useType != ConsumptionType.EAT && useType != ConsumptionType.FOOD_HELPER);
+              nameIterator, useType != ItemType.EAT && useType != ItemType.FOOD_HELPER);
           break;
         case BOOZE:
           ItemFinder.conditionalRemove(
-              nameIterator,
-              useType != ConsumptionType.DRINK && useType != ConsumptionType.DRINK_HELPER);
+              nameIterator, useType != ItemType.DRINK && useType != ItemType.DRINK_HELPER);
           break;
         case SPLEEN:
-          ItemFinder.conditionalRemove(nameIterator, useType != ConsumptionType.SPLEEN);
+          ItemFinder.conditionalRemove(nameIterator, useType != ItemType.SPLEEN);
           break;
         case EQUIP:
           switch (useType) {
@@ -314,10 +313,7 @@ public class ItemFinder {
   }
 
   public static AdventureResult getFirstMatchingItem(
-      String parameters,
-      boolean errorOnFailure,
-      List<AdventureResult> sourceList,
-      Match filterType) {
+      String parameters, boolean errorOnFailure, Repository sourceList, Match filterType) {
     // Ignore spaces and tabs at ends of the parameter string
     parameters = parameters.trim();
 
@@ -548,18 +544,17 @@ public class ItemFinder {
     return ItemFinder.getMatchingItemList(itemList, errorOnFailure, null, Match.ANY);
   }
 
-  public static AdventureResult[] getMatchingItemList(
-      String itemList, List<AdventureResult> sourceList) {
+  public static AdventureResult[] getMatchingItemList(String itemList, Repository sourceList) {
     return ItemFinder.getMatchingItemList(itemList, true, sourceList, Match.ANY);
   }
 
   public static AdventureResult[] getMatchingItemList(
-      String itemList, boolean errorOnFailure, List<AdventureResult> sourceList) {
+      String itemList, boolean errorOnFailure, Repository sourceList) {
     return ItemFinder.getMatchingItemList(itemList, errorOnFailure, sourceList, Match.ANY);
   }
 
   public static AdventureResult[] getMatchingItemList(
-      String itemList, boolean errorOnFailure, List<AdventureResult> sourceList, Match filterType) {
+      String itemList, boolean errorOnFailure, Repository sourceList, Match filterType) {
     AdventureResult firstMatch =
         ItemFinder.getFirstMatchingItem(itemList, false, sourceList, filterType);
     if (firstMatch != null) {

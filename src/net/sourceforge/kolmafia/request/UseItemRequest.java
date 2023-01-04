@@ -12,7 +12,6 @@ import net.sourceforge.kolmafia.FamiliarData;
 import net.sourceforge.kolmafia.KoLAdventure;
 import net.sourceforge.kolmafia.KoLCharacter;
 import net.sourceforge.kolmafia.KoLConstants;
-import net.sourceforge.kolmafia.KoLConstants.ConsumptionType;
 import net.sourceforge.kolmafia.KoLConstants.MafiaState;
 import net.sourceforge.kolmafia.KoLmafia;
 import net.sourceforge.kolmafia.Modifiers;
@@ -27,6 +26,7 @@ import net.sourceforge.kolmafia.objectpool.FamiliarPool;
 import net.sourceforge.kolmafia.objectpool.ItemPool;
 import net.sourceforge.kolmafia.objectpool.OutfitPool;
 import net.sourceforge.kolmafia.objectpool.SkillPool;
+import net.sourceforge.kolmafia.objecttypes.ItemType;
 import net.sourceforge.kolmafia.persistence.ConcoctionDatabase;
 import net.sourceforge.kolmafia.persistence.ConsumablesDatabase;
 import net.sourceforge.kolmafia.persistence.DailyLimitDatabase.DailyLimitType;
@@ -134,7 +134,7 @@ public class UseItemRequest extends GenericRequest {
   private static AdventureResult lastUntinker = null;
 
   protected boolean shouldFollowRedirect = true;
-  protected final ConsumptionType consumptionType;
+  protected final ItemType itemType;
   protected AdventureResult itemUsed;
 
   protected static AdventureResult lastItemUsed = null;
@@ -157,64 +157,64 @@ public class UseItemRequest extends GenericRequest {
   }
 
   public static final UseItemRequest getInstance(
-      final ConsumptionType consumptionType, final AdventureResult item) {
-    return switch (consumptionType) {
+      final ItemType itemType, final AdventureResult item) {
+    return switch (itemType) {
       case DRINK, DRINK_HELPER -> new DrinkItemRequest(item);
       case EAT, FOOD_HELPER -> new EatItemRequest(item);
       case SPLEEN -> new SpleenItemRequest(item);
-      default -> new UseItemRequest(consumptionType, item);
+      default -> new UseItemRequest(itemType, item);
     };
   }
 
-  protected UseItemRequest(final ConsumptionType consumptionType, final AdventureResult item) {
-    this(UseItemRequest.getConsumptionLocation(consumptionType, item), consumptionType, item);
+  protected UseItemRequest(final ItemType itemType, final AdventureResult item) {
+    this(UseItemRequest.getConsumptionLocation(itemType, item), itemType, item);
   }
 
   private UseItemRequest(
-      final String location, final ConsumptionType consumptionType, final AdventureResult item) {
+      final String location, final ItemType itemType, final AdventureResult item) {
     super(location);
 
-    this.consumptionType = consumptionType;
+    this.itemType = itemType;
     this.itemUsed = item;
 
     this.addFormField("whichitem", String.valueOf(item.getItemId()));
   }
 
-  public static final ConsumptionType getConsumptionType(final AdventureResult item) {
+  public static final ItemType getConsumptionType(final AdventureResult item) {
     int itemId = item.getItemId();
 
     // We want to display the result of using certain items
     switch (itemId) {
       case ItemPool.HOBO_CODE_BINDER:
       case ItemPool.STUFFED_BARON:
-        return ConsumptionType.USE_MESSAGE_DISPLAY;
+        return ItemType.USE_MESSAGE_DISPLAY;
     }
 
-    ConsumptionType consumptionType = ItemDatabase.getConsumptionType(itemId);
+    ItemType itemType = ItemDatabase.getConsumptionType(itemId);
 
     // Spleen items can be marked "usable", if you can only use one
     // at a time, but must use a SpleenItemRequest
-    if (consumptionType == ConsumptionType.SPLEEN) {
-      return ConsumptionType.SPLEEN;
+    if (itemType == ItemType.SPLEEN) {
+      return ItemType.SPLEEN;
     }
 
     EnumSet<Attribute> attrs = ItemDatabase.getAttributes(itemId);
     if (attrs.contains(Attribute.USABLE)) {
-      return ConsumptionType.USE;
+      return ItemType.USE;
     }
     if (attrs.contains(Attribute.MULTIPLE)) {
-      return ConsumptionType.USE_MULTIPLE;
+      return ItemType.USE_MULTIPLE;
     }
     if (attrs.contains(Attribute.REUSABLE)) {
-      return ConsumptionType.USE_INFINITE;
+      return ItemType.USE_INFINITE;
     }
 
-    return consumptionType;
+    return itemType;
   }
 
   private static String getConsumptionLocation(
-      final ConsumptionType consumptionType, final AdventureResult item) {
-    switch (consumptionType) {
+      final ItemType itemType, final AdventureResult item) {
+    switch (itemType) {
       case EAT:
         return "inv_eat.php";
       case DRINK:
@@ -238,8 +238,8 @@ public class UseItemRequest extends GenericRequest {
         return "inv_use.php";
       case USE_INFINITE:
         {
-          ConsumptionType type = ItemDatabase.getConsumptionType(item.getItemId());
-          return type == ConsumptionType.USE_MULTIPLE ? "multiuse.php" : "inv_use.php";
+          ItemType type = ItemDatabase.getConsumptionType(item.getItemId());
+          return type == ItemType.USE_MULTIPLE ? "multiuse.php" : "inv_use.php";
         }
       default:
         return "inv_use.php";
@@ -265,7 +265,7 @@ public class UseItemRequest extends GenericRequest {
   }
 
   private boolean isBingeRequest() {
-    return switch (this.consumptionType) {
+    return switch (this.itemType) {
       case SPIRIT_HOBO, GLUTTONOUS_GHOST, SLIMELING, STOCKING_MIMIC -> true;
       default -> false;
     };
@@ -331,8 +331,8 @@ public class UseItemRequest extends GenericRequest {
     return true;
   }
 
-  public ConsumptionType getConsumptionType() {
-    return this.consumptionType;
+  public ItemType getConsumptionType() {
+    return this.itemType;
   }
 
   public AdventureResult getItemUsed() {
@@ -340,12 +340,12 @@ public class UseItemRequest extends GenericRequest {
   }
 
   public static final int maximumUses(final int itemId) {
-    return UseItemRequest.maximumUses(itemId, ConsumptionType.NONE);
+    return UseItemRequest.maximumUses(itemId, ItemType.NONE);
   }
 
-  public static final int maximumUses(final int itemId, final ConsumptionType consumptionType) {
+  public static final int maximumUses(final int itemId, final ItemType itemType) {
     String itemName = ItemDatabase.getItemDataName(itemId);
-    return UseItemRequest.maximumUses(itemId, itemName, consumptionType, true);
+    return UseItemRequest.maximumUses(itemId, itemName, itemType, true);
   }
 
   public static final int maximumUses(String itemName) {
@@ -353,13 +353,13 @@ public class UseItemRequest extends GenericRequest {
     if (itemId > 0) {
       itemName = ItemDatabase.getItemDataName(itemId);
     }
-    return UseItemRequest.maximumUses(itemId, itemName, ConsumptionType.NONE, false);
+    return UseItemRequest.maximumUses(itemId, itemName, ItemType.NONE, false);
   }
 
   private static int maximumUses(
       final int itemId,
       final String itemName,
-      final ConsumptionType consumptionType,
+      final ItemType itemType,
       final boolean allowOverDrink) {
     if (FightRequest.inMultiFight) {
       UseItemRequest.limiter = "multi-stage fight in progress";
@@ -425,7 +425,7 @@ public class UseItemRequest extends GenericRequest {
     }
 
     // Check binge requests before checking fullness or inebriety
-    switch (consumptionType) {
+    switch (itemType) {
       case SPIRIT_HOBO:
       case GLUTTONOUS_GHOST:
       case SLIMELING:
@@ -838,7 +838,7 @@ public class UseItemRequest extends GenericRequest {
       return Preferences.getBoolean("_workshedItemUsed") ? 0 : 1;
     }
 
-    switch (consumptionType) {
+    switch (itemType) {
       case FAMILIAR_HATCHLING -> {
         if (KoLCharacter.inAxecore()) {
           UseItemRequest.limiter = "Boris's scorn for familiars";
@@ -1062,7 +1062,7 @@ public class UseItemRequest extends GenericRequest {
       }
     }
 
-    switch (this.consumptionType) {
+    switch (this.itemType) {
       case STICKER,
           CARD,
           FOLDER,
@@ -1102,7 +1102,7 @@ public class UseItemRequest extends GenericRequest {
       return;
     }
 
-    int maximumUses = UseItemRequest.maximumUses(itemId, this.consumptionType);
+    int maximumUses = UseItemRequest.maximumUses(itemId, this.itemType);
     if (maximumUses < this.itemUsed.getCount()) {
       KoLmafia.updateDisplay(
           "(usable quantity of "
@@ -1176,7 +1176,7 @@ public class UseItemRequest extends GenericRequest {
         break;
     }
 
-    if (this.consumptionType != ConsumptionType.USE_INFINITE
+    if (this.itemType != ItemType.USE_INFINITE
         && !UseItemRequest.sequentialConsume(itemId)
         && !InventoryManager.retrieveItem(this.itemUsed)) {
       return;
@@ -1195,11 +1195,11 @@ public class UseItemRequest extends GenericRequest {
         iterations = (origCount + 10) / 11;
         this.itemUsed = this.itemUsed.getInstance((origCount + 10) % 11 + 1);
       } else
-        switch (this.consumptionType) {
+        switch (this.itemType) {
           case USE_INFINITE:
             {
-              ConsumptionType type = ItemDatabase.getConsumptionType(this.itemUsed.getItemId());
-              if (type != ConsumptionType.USE_MULTIPLE) {
+              ItemType type = ItemDatabase.getConsumptionType(this.itemUsed.getItemId());
+              if (type != ItemType.USE_MULTIPLE) {
                 iterations = origCount;
                 this.itemUsed = this.itemUsed.getInstance(1);
               }
@@ -1281,7 +1281,7 @@ public class UseItemRequest extends GenericRequest {
       final int currentIteration, final int totalIterations, String useTypeAsString) {
     UseItemRequest.lastUpdate = "";
 
-    if (this.consumptionType == ConsumptionType.ZAP) {
+    if (this.itemType == ItemType.ZAP) {
       ZapCommand.zap(this.getItemUsed().getName());
       return;
     }
@@ -1302,7 +1302,7 @@ public class UseItemRequest extends GenericRequest {
       RecoveryManager.runBetweenBattleChecks(true);
     }
 
-    switch (this.consumptionType) {
+    switch (this.itemType) {
       case SPIRIT_HOBO:
         if (KoLCharacter.getFamiliar().getId() != FamiliarPool.HOBO) {
           KoLmafia.updateDisplay(MafiaState.ERROR, "You don't have a Spirit Hobo equipped");
@@ -1436,7 +1436,7 @@ public class UseItemRequest extends GenericRequest {
       return;
     }
 
-    switch (this.consumptionType) {
+    switch (this.itemType) {
       case GLUTTONOUS_GHOST, SPIRIT_HOBO, SLIMELING, STOCKING_MIMIC -> {
         if (!UseItemRequest.parseBinge(this.getURLString(), this.responseText)) {
           KoLmafia.updateDisplay(MafiaState.ERROR, "Your current familiar can't use that.");
@@ -1705,9 +1705,9 @@ public class UseItemRequest extends GenericRequest {
       return;
     }
 
-    ConsumptionType consumptionType = UseItemRequest.getConsumptionType(item);
+    ItemType itemType = UseItemRequest.getConsumptionType(item);
 
-    switch (consumptionType) {
+    switch (itemType) {
       case DRINK, DRINK_HELPER -> {
         DrinkItemRequest.parseConsumption(item, helper, responseText);
         return;
@@ -1805,7 +1805,7 @@ public class UseItemRequest extends GenericRequest {
     // Check for familiar growth - if a familiar is added,
     // make sure to update the StaticEntity.getClient().
 
-    if (consumptionType == ConsumptionType.FAMILIAR_HATCHLING) {
+    if (itemType == ItemType.FAMILIAR_HATCHLING) {
       if (responseText.contains("You've already got a familiar of that type.")) {
         UseItemRequest.lastUpdate = "You already have that familiar.";
         KoLmafia.updateDisplay(MafiaState.ERROR, UseItemRequest.lastUpdate);
@@ -1875,7 +1875,7 @@ public class UseItemRequest extends GenericRequest {
       return;
     }
 
-    switch (consumptionType) {
+    switch (itemType) {
       case FOOD_HELPER:
       case DRINK_HELPER:
         // Consumption helpers are removed above when you
@@ -5959,7 +5959,7 @@ public class UseItemRequest extends GenericRequest {
 
     // Finally, remove the item from inventory if it was successfully used.
 
-    switch (consumptionType) {
+    switch (itemType) {
       case ZAP:
       case FAMILIAR_EQUIPMENT:
       case ACCESSORY:
@@ -6350,10 +6350,10 @@ public class UseItemRequest extends GenericRequest {
     }
 
     int count = item.getCount();
-    ConsumptionType consumptionType = ItemDatabase.getConsumptionType(itemId);
+    ItemType itemType = ItemDatabase.getConsumptionType(itemId);
     String useString = null;
 
-    switch (consumptionType) {
+    switch (itemType) {
       case NONE:
         if (itemId != ItemPool.LOATHING_LEGION_JACKHAMMER) {
           return false;
@@ -6374,7 +6374,7 @@ public class UseItemRequest extends GenericRequest {
 
         // Fortune cookies, for example
         if (urlString.startsWith("inv_use")) {
-          consumptionType = ConsumptionType.USE;
+          itemType = ItemType.USE;
           break;
         }
         break;

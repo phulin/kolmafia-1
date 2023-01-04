@@ -8,6 +8,7 @@ import java.util.List;
 import net.sourceforge.kolmafia.AdventureResult;
 import net.sourceforge.kolmafia.KoLCharacter;
 import net.sourceforge.kolmafia.KoLConstants;
+import net.sourceforge.kolmafia.objecttypes.Item;
 import net.sourceforge.kolmafia.persistence.ItemDatabase;
 import net.sourceforge.kolmafia.preferences.Preferences;
 
@@ -3484,7 +3485,7 @@ public class ItemPool {
 
   private ItemPool() {}
 
-  public static final AdventureResult get(String itemName, int count) {
+  public static final Item get(String itemName, int count) {
     int itemId = ItemDatabase.getItemId(itemName, 1, false);
 
     if (itemId != -1) {

@@ -1,6 +1,5 @@
 package net.sourceforge.kolmafia.textui.command;
 
-import java.util.List;
 import net.sourceforge.kolmafia.AdventureResult;
 import net.sourceforge.kolmafia.CoinmasterData;
 import net.sourceforge.kolmafia.CoinmasterRegistry;
@@ -8,6 +7,7 @@ import net.sourceforge.kolmafia.KoLConstants;
 import net.sourceforge.kolmafia.KoLConstants.MafiaState;
 import net.sourceforge.kolmafia.KoLmafia;
 import net.sourceforge.kolmafia.RequestThread;
+import net.sourceforge.kolmafia.items.Repository;
 import net.sourceforge.kolmafia.persistence.ItemFinder;
 import net.sourceforge.kolmafia.request.CoinMasterRequest;
 
@@ -47,7 +47,7 @@ public class CoinmasterCommand extends AbstractCommand {
       return;
     }
 
-    List<AdventureResult> source = isBuy ? null : KoLConstants.inventory;
+    Repository source = isBuy ? null : KoLConstants.inventory;
     AdventureResult[] itemList = ItemFinder.getMatchingItemList(parameters, source);
 
     if (itemList.length == 0) {

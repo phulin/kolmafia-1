@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.StringTokenizer;
+import net.sourceforge.kolmafia.items.Repository;
 import net.sourceforge.kolmafia.objectpool.ItemPool;
 import net.sourceforge.kolmafia.persistence.BountyDatabase;
 import net.sourceforge.kolmafia.persistence.ConsumablesDatabase;
@@ -930,7 +931,7 @@ public class AdventureResult implements Comparable<AdventureResult>, Cloneable {
    * @param result The result to add to the tally
    */
   public static final void addResultToList(
-      final List<AdventureResult> sourceList, final AdventureResult result) {
+      final Repository sourceList, final AdventureResult result) {
     int index = sourceList.indexOf(result);
 
     // First, filter out things where it's a simple addition of an
@@ -1041,6 +1042,11 @@ public class AdventureResult implements Comparable<AdventureResult>, Cloneable {
     }
   }
 
+  public static final void removeResultFromList(
+      final Repository sourceList, final AdventureResult result) {
+    sourceList.remove(result);
+  }
+
   public AdventureResult getNegation() {
     if (this.isItem() && this.id != -1) {
       return this.count == 0 ? this : new AdventureResult(this.id, -this.count, false);
@@ -1115,10 +1121,14 @@ public class AdventureResult implements Comparable<AdventureResult>, Cloneable {
     return item.getCount();
   }
 
-  public int getCount(final Map<Integer, AdventureResult> map) {
-    AdventureResult item = map.get(this.getItemId());
-    if (item == null) return 0;
-    return item.getCount();
+  public int getCount(final Map<Integer, Integer> map) {
+    Integer count = map.get(this.getItemId());
+    return count == null ? 0 : count;
+  }
+
+  public int getCount(final Repository map) {
+    Integer count = map.get(this.getItemId());
+    return count == null ? 0 : count;
   }
 
   public static AdventureResult findItem(final int itemId, final List<AdventureResult> list) {

@@ -11,12 +11,12 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import net.sourceforge.kolmafia.KoLCharacter;
 import net.sourceforge.kolmafia.KoLConstants;
-import net.sourceforge.kolmafia.KoLConstants.ConsumptionType;
 import net.sourceforge.kolmafia.ModifierExpression;
 import net.sourceforge.kolmafia.Modifiers;
 import net.sourceforge.kolmafia.RequestLogger;
 import net.sourceforge.kolmafia.RequestThread;
 import net.sourceforge.kolmafia.StaticEntity;
+import net.sourceforge.kolmafia.objecttypes.ItemType;
 import net.sourceforge.kolmafia.persistence.DebugDatabase;
 import net.sourceforge.kolmafia.persistence.EffectDatabase;
 import net.sourceforge.kolmafia.persistence.HolidayDatabase;
@@ -291,7 +291,7 @@ public abstract class ConsequenceManager {
       switch (type) {
         case "DESC_ITEM" -> {
           int itemId = ItemDatabase.getItemId(this.getSpec());
-          ConsumptionType equipType = ItemDatabase.getConsumptionType(itemId);
+          ItemType equipType = ItemDatabase.getConsumptionType(itemId);
           mods =
               DebugDatabase.parseItemEnchantments(
                   match.replaceFirst(match.group(0)), new ArrayList<>(), equipType);

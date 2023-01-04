@@ -448,30 +448,17 @@ public class CampgroundRequest extends GenericRequest {
   }
 
   public static void setCampgroundItem(final AdventureResult item) {
-    int i = KoLConstants.campground.indexOf(item);
-    if (i != -1) {
-      AdventureResult old = KoLConstants.campground.get(i);
-      if (old.getCount() == item.getCount()) {
-        return;
-      }
-      KoLConstants.campground.remove(i);
-    }
-    KoLConstants.campground.add(item);
+    KoLConstants.campground.set(item.getItemId(), item.getCount());
   }
 
   public static void removeCampgroundItem(AdventureResult item) {
-    int i = KoLConstants.campground.indexOf(item);
-    if (i != -1) {
-      KoLConstants.campground.remove(i);
-    }
+    KoLConstants.campground.remove(item);
   }
 
   public static AdventureResult getCrop() {
     for (AdventureResult crop : CampgroundRequest.CROPS) {
-      int index = KoLConstants.campground.indexOf(crop);
-      if (index != -1) {
-        return KoLConstants.campground.get(index);
-      }
+      int count = KoLConstants.campground.count(crop);
+      if (count > 0) return crop.getInstance(count);
     }
     return null;
   }
@@ -565,18 +552,10 @@ public class CampgroundRequest extends GenericRequest {
 
   public static void clearCrop() {
     for (AdventureResult crop : CampgroundRequest.CROPS) {
-      int index = KoLConstants.campground.indexOf(crop);
-      if (index != -1) {
-        KoLConstants.campground.remove(index);
-        break;
-      }
+      KoLConstants.campground.remove(crop);
     }
     for (AdventureResult seed : CampgroundRequest.CROP_SEEDS) {
-      int index = KoLConstants.campground.indexOf(seed);
-      if (index != -1) {
-        KoLConstants.campground.remove(index);
-        break;
-      }
+      KoLConstants.campground.remove(seed);
     }
   }
 

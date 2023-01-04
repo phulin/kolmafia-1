@@ -3,10 +3,10 @@ package net.sourceforge.kolmafia.session;
 import java.io.File;
 import java.util.List;
 import net.sourceforge.kolmafia.AdventureResult;
-import net.sourceforge.kolmafia.KoLConstants.ConsumptionType;
 import net.sourceforge.kolmafia.KoLmafia;
 import net.sourceforge.kolmafia.KoLmafiaASH;
 import net.sourceforge.kolmafia.KoLmafiaCLI;
+import net.sourceforge.kolmafia.objecttypes.ItemType;
 import net.sourceforge.kolmafia.preferences.Preferences;
 import net.sourceforge.kolmafia.request.UseItemRequest;
 import net.sourceforge.kolmafia.textui.ScriptRuntime;
@@ -31,7 +31,7 @@ public class SpadingManager {
     PLACE,
     ;
 
-    public static SpadingEvent fromKoLConstant(final ConsumptionType constant) {
+    public static SpadingEvent fromKoLConstant(final ItemType constant) {
       return switch (constant) {
         case EAT -> SpadingEvent.CONSUME_EAT;
         case DRINK -> SpadingEvent.CONSUME_DRINK;
@@ -76,8 +76,8 @@ public class SpadingManager {
   }
 
   public static boolean processConsume(
-      final ConsumptionType consumptionType, final String itemName, final String responseText) {
-    SpadingEvent event = SpadingEvent.fromKoLConstant(consumptionType);
+      final ItemType itemType, final String itemName, final String responseText) {
+    SpadingEvent event = SpadingEvent.fromKoLConstant(itemType);
 
     if (event == null) {
       return false;
@@ -91,10 +91,9 @@ public class SpadingManager {
       return false;
     }
 
-    ConsumptionType consumptionType = UseItemRequest.getConsumptionType(item);
+    ItemType itemType = UseItemRequest.getConsumptionType(item);
 
-    return SpadingManager.processConsume(
-        consumptionType, item.getDisambiguatedName(), responseText);
+    return SpadingManager.processConsume(itemType, item.getDisambiguatedName(), responseText);
   }
 
   public static boolean processPeeVPee(final String location, final String responseText) {

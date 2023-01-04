@@ -29,7 +29,6 @@ import net.sourceforge.kolmafia.AdventureResult;
 import net.sourceforge.kolmafia.FamiliarData;
 import net.sourceforge.kolmafia.KoLCharacter;
 import net.sourceforge.kolmafia.KoLConstants;
-import net.sourceforge.kolmafia.KoLConstants.ConsumptionType;
 import net.sourceforge.kolmafia.KoLmafia;
 import net.sourceforge.kolmafia.KoLmafiaGUI;
 import net.sourceforge.kolmafia.Modeable;
@@ -41,6 +40,7 @@ import net.sourceforge.kolmafia.listener.NamedListenerRegistry;
 import net.sourceforge.kolmafia.objectpool.FamiliarPool;
 import net.sourceforge.kolmafia.objectpool.ItemPool;
 import net.sourceforge.kolmafia.objectpool.SkillPool;
+import net.sourceforge.kolmafia.objecttypes.ItemType;
 import net.sourceforge.kolmafia.persistence.EquipmentDatabase;
 import net.sourceforge.kolmafia.persistence.ItemDatabase;
 import net.sourceforge.kolmafia.request.EquipmentRequest;
@@ -971,12 +971,12 @@ public class GearChangePanel extends JPanel {
 
     // Certain familiars can carry non-familiar-items
     FamiliarData myFamiliar = KoLCharacter.getFamiliar();
-    ConsumptionType specialFamiliarType = myFamiliar.specialEquipmentType();
-    boolean specialFamiliar = (specialFamiliarType != ConsumptionType.NONE);
+    ItemType specialFamiliarType = myFamiliar.specialEquipmentType();
+    boolean specialFamiliar = (specialFamiliarType != ItemType.NONE);
 
     // Look at every item in inventory
     for (AdventureResult item : KoLConstants.inventory) {
-      ConsumptionType consumption = ItemDatabase.getConsumptionType(item.getItemId());
+      ItemType consumption = ItemDatabase.getConsumptionType(item.getItemId());
       int slot = EquipmentManager.consumeFilterToEquipmentType(consumption);
       switch (consumption) {
         case WEAPON:
@@ -1075,7 +1075,7 @@ public class GearChangePanel extends JPanel {
     return this.shouldAddItem(item, ItemDatabase.getConsumptionType(item.getItemId()), slot);
   }
 
-  private boolean shouldAddItem(AdventureResult item, ConsumptionType consumption, int slot) {
+  private boolean shouldAddItem(AdventureResult item, ItemType consumption, int slot) {
     switch (consumption) {
         // The following lists are local to GearChanger
       case HAT:
@@ -1093,7 +1093,7 @@ public class GearChangePanel extends JPanel {
         }
         break;
       case OFFHAND:
-        if (!this.filterOffhand(item, ConsumptionType.OFFHAND)) {
+        if (!this.filterOffhand(item, ItemType.OFFHAND)) {
           return false;
         }
         break;
@@ -1120,7 +1120,7 @@ public class GearChangePanel extends JPanel {
     }
 
     if (slot == EquipmentManager.OFFHAND) {
-      return this.filterOffhand(weapon, ConsumptionType.WEAPON);
+      return this.filterOffhand(weapon, ItemType.WEAPON);
     }
 
     if (KoLCharacter.inAxecore()) {
@@ -1142,7 +1142,7 @@ public class GearChangePanel extends JPanel {
     };
   }
 
-  private boolean filterOffhand(final AdventureResult offhand, ConsumptionType consumption) {
+  private boolean filterOffhand(final AdventureResult offhand, ItemType consumption) {
     // In Fistcore, you must have both hands free.
     // In Axecore, you can equip only Trusty, a two-handed axe
     if (KoLCharacter.inFistcore() || KoLCharacter.inAxecore()) {
@@ -1157,7 +1157,7 @@ public class GearChangePanel extends JPanel {
     }
 
     // Do not even consider weapons unless we can dual-wield
-    if (consumption == ConsumptionType.WEAPON) {
+    if (consumption == ItemType.WEAPON) {
       if (!KoLCharacter.hasSkill(SkillPool.DOUBLE_FISTED_SKULL_SMASHING)) {
         return false;
       }
@@ -1195,7 +1195,7 @@ public class GearChangePanel extends JPanel {
       return true;
     }
 
-    if (consumption == ConsumptionType.WEAPON) {
+    if (consumption == ItemType.WEAPON) {
       return this.offhandTypes[1].isSelected();
     }
 
@@ -1213,7 +1213,7 @@ public class GearChangePanel extends JPanel {
     return false;
   }
 
-  private boolean shouldAddItem(final AdventureResult item, final ConsumptionType type) {
+  private boolean shouldAddItem(final AdventureResult item, final ItemType type) {
     // Only add items of specified type
     if (type != ItemDatabase.getConsumptionType(item.getItemId())) {
       return false;

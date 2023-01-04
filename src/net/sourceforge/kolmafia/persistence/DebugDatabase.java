@@ -21,7 +21,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import net.sourceforge.kolmafia.AdventureResult;
 import net.sourceforge.kolmafia.KoLCharacter;
 import net.sourceforge.kolmafia.KoLConstants;
-import net.sourceforge.kolmafia.KoLConstants.ConsumptionType;
 import net.sourceforge.kolmafia.KoLmafia;
 import net.sourceforge.kolmafia.ModifierExpression;
 import net.sourceforge.kolmafia.Modifiers;
@@ -35,6 +34,7 @@ import net.sourceforge.kolmafia.StaticEntity;
 import net.sourceforge.kolmafia.objectpool.Concoction;
 import net.sourceforge.kolmafia.objectpool.ItemPool;
 import net.sourceforge.kolmafia.objectpool.SkillPool;
+import net.sourceforge.kolmafia.objecttypes.ItemType;
 import net.sourceforge.kolmafia.persistence.ConsumablesDatabase.ConsumableQuality;
 import net.sourceforge.kolmafia.persistence.ItemDatabase.Attribute;
 import net.sourceforge.kolmafia.persistence.MonsterDatabase.Element;
@@ -150,10 +150,10 @@ public class DebugDatabase {
 
   private static class ItemMap {
     private final String tag;
-    private final ConsumptionType type;
+    private final ItemType type;
     private final Map<String, String> map;
 
-    public ItemMap(final String tag, final ConsumptionType type) {
+    public ItemMap(final String tag, final ItemType type) {
       this.tag = tag;
       this.type = type;
       this.map = new TreeMap<>(KoLConstants.ignoreCaseComparator);
@@ -163,7 +163,7 @@ public class DebugDatabase {
       return this.tag;
     }
 
-    public ConsumptionType getType() {
+    public ItemType getType() {
       return this.type;
     }
 
@@ -186,31 +186,31 @@ public class DebugDatabase {
   }
 
   private static final ItemMap[] ITEM_MAPS = {
-    new ItemMap("Food", ConsumptionType.EAT),
-    new ItemMap("Booze", ConsumptionType.DRINK),
-    new ItemMap("Spleen Toxins", ConsumptionType.SPLEEN),
-    new ItemMap("Hats", ConsumptionType.HAT),
-    new ItemMap("Weapons", ConsumptionType.WEAPON),
-    new ItemMap("Off-hand Items", ConsumptionType.OFFHAND),
-    new ItemMap("Shirts", ConsumptionType.SHIRT),
-    new ItemMap("Pants", ConsumptionType.PANTS),
-    new ItemMap("Accessories", ConsumptionType.ACCESSORY),
-    new ItemMap("Containers", ConsumptionType.CONTAINER),
-    new ItemMap("Familiar Items", ConsumptionType.FAMILIAR_EQUIPMENT),
-    new ItemMap("Potions", ConsumptionType.POTION),
-    new ItemMap("Avatar Potions", ConsumptionType.AVATAR_POTION),
-    new ItemMap("Everything Else", ConsumptionType.UNKNOWN),
+    new ItemMap("Food", ItemType.EAT),
+    new ItemMap("Booze", ItemType.DRINK),
+    new ItemMap("Spleen Toxins", ItemType.SPLEEN),
+    new ItemMap("Hats", ItemType.HAT),
+    new ItemMap("Weapons", ItemType.WEAPON),
+    new ItemMap("Off-hand Items", ItemType.OFFHAND),
+    new ItemMap("Shirts", ItemType.SHIRT),
+    new ItemMap("Pants", ItemType.PANTS),
+    new ItemMap("Accessories", ItemType.ACCESSORY),
+    new ItemMap("Containers", ItemType.CONTAINER),
+    new ItemMap("Familiar Items", ItemType.FAMILIAR_EQUIPMENT),
+    new ItemMap("Potions", ItemType.POTION),
+    new ItemMap("Avatar Potions", ItemType.AVATAR_POTION),
+    new ItemMap("Everything Else", ItemType.UNKNOWN),
   };
 
-  private static ItemMap findItemMap(final ConsumptionType type) {
+  private static ItemMap findItemMap(final ItemType type) {
     ItemMap other = null;
     for (int i = 0; i < DebugDatabase.ITEM_MAPS.length; ++i) {
       ItemMap map = DebugDatabase.ITEM_MAPS[i];
-      ConsumptionType mapType = map.getType();
+      ItemType mapType = map.getType();
       if (mapType == type) {
         return map;
       }
-      if (mapType == ConsumptionType.UNKNOWN) {
+      if (mapType == ItemType.UNKNOWN) {
         other = map;
       }
     }
@@ -302,9 +302,9 @@ public class DebugDatabase {
       return;
     }
 
-    ConsumptionType type = ItemDatabase.getConsumptionType(itemId);
+    ItemType type = ItemDatabase.getConsumptionType(itemId);
     String descType = DebugDatabase.parseType(text);
-    ConsumptionType descPrimary = DebugDatabase.typeToPrimary(descType, false);
+    ItemType descPrimary = DebugDatabase.typeToPrimary(descType, false);
     if (!typesMatch(type, descPrimary)) {
       String primary = ItemDatabase.typeToPrimaryUsage(type);
       report.println(
@@ -347,12 +347,12 @@ public class DebugDatabase {
 
     // If description says it's a potion, make that the primary
     // type and move usability and multiusability into attributes
-    if (descPrimary == ConsumptionType.POTION) {
-      if (type == ConsumptionType.USE) {
-        type = ConsumptionType.POTION;
+    if (descPrimary == ItemType.POTION) {
+      if (type == ItemType.USE) {
+        type = ItemType.POTION;
         attrs.add(Attribute.USABLE);
-      } else if (type == ConsumptionType.USE_MULTIPLE) {
-        type = ConsumptionType.POTION;
+      } else if (type == ItemType.USE_MULTIPLE) {
+        type = ItemType.POTION;
         attrs.add(Attribute.MULTIPLE);
       }
     }
@@ -559,7 +559,7 @@ public class DebugDatabase {
     return type.equals("back item") ? "container" : type;
   }
 
-  public static final ConsumptionType typeToPrimary(final String type, final boolean multi) {
+  public static final ItemType typeToPrimary(final String type, final boolean multi) {
     // Type: <b>food <font color=#999999>(crappy)</font></b>
     // Type: <b>food (decent)</b>
     // Type: <b>booze <font color=green>(good)</font></b>
@@ -567,62 +567,62 @@ public class DebugDatabase {
     // Type: <b>food <font color=blueviolet>(EPIC)</font></b>
 
     if (type.equals("") || type.equals("crafting item")) {
-      return ConsumptionType.NONE;
+      return ItemType.NONE;
     }
     if (type.startsWith("food") || type.startsWith("beverage")) {
-      return ConsumptionType.EAT;
+      return ItemType.EAT;
     }
     if (type.startsWith("booze")) {
-      return ConsumptionType.DRINK;
+      return ItemType.DRINK;
     }
     if (type.startsWith("spleen item")) {
-      return ConsumptionType.SPLEEN;
+      return ItemType.SPLEEN;
     }
     if (type.contains("self or others")) {
       // Curse items are special
-      return ConsumptionType.NONE;
+      return ItemType.NONE;
     }
     if (type.equals("potion")) {
-      return ConsumptionType.POTION;
+      return ItemType.POTION;
     }
     if (type.startsWith("usable") || type.contains(" usable") || type.equals("gift package")) {
       // We'll assume these are single-usable unless we are
       // explicitly told otherwise in a "rel" string
 
-      return multi ? ConsumptionType.USE_MULTIPLE : ConsumptionType.USE;
+      return multi ? ItemType.USE_MULTIPLE : ItemType.USE;
     }
     if (type.equals("familiar equipment")) {
-      return ConsumptionType.FAMILIAR_EQUIPMENT;
+      return ItemType.FAMILIAR_EQUIPMENT;
     }
     if (type.startsWith("familiar")) {
-      return ConsumptionType.FAMILIAR_HATCHLING;
+      return ItemType.FAMILIAR_HATCHLING;
     }
     if (type.startsWith("accessory")) {
-      return ConsumptionType.ACCESSORY;
+      return ItemType.ACCESSORY;
     }
     if (type.startsWith("container")) {
-      return ConsumptionType.CONTAINER;
+      return ItemType.CONTAINER;
     }
     if (type.startsWith("hat")) {
-      return ConsumptionType.HAT;
+      return ItemType.HAT;
     }
     if (type.startsWith("shirt")) {
-      return ConsumptionType.SHIRT;
+      return ItemType.SHIRT;
     }
     if (type.startsWith("pants")) {
-      return ConsumptionType.PANTS;
+      return ItemType.PANTS;
     }
     if (type.contains("weapon")) {
-      return ConsumptionType.WEAPON;
+      return ItemType.WEAPON;
     }
     if (type.startsWith("off-hand item")) {
-      return ConsumptionType.OFFHAND;
+      return ItemType.OFFHAND;
     }
-    return ConsumptionType.NONE;
+    return ItemType.NONE;
   }
 
   public static final EnumSet<Attribute> typeToSecondary(
-      final String type, final ConsumptionType primary, final String text, final boolean multi) {
+      final String type, final ItemType primary, final String text, final boolean multi) {
     EnumSet<Attribute> attributes = EnumSet.noneOf(Attribute.class);
     boolean usable =
         type.startsWith("usable")
@@ -637,10 +637,10 @@ public class DebugDatabase {
     } else if (type.contains("reusable")) {
       attributes.add(Attribute.REUSABLE);
     }
-    if (multi && primary != ConsumptionType.USE_MULTIPLE && usable) {
+    if (multi && primary != ItemType.USE_MULTIPLE && usable) {
       attributes.add(Attribute.MULTIPLE);
     }
-    if (!multi && primary != ConsumptionType.USE && usable) {
+    if (!multi && primary != ItemType.USE && usable) {
       attributes.add(Attribute.USABLE);
     }
     if (type.contains("self or others")) {
@@ -664,12 +664,12 @@ public class DebugDatabase {
     return attributes;
   }
 
-  private static boolean typesMatch(final ConsumptionType type, final ConsumptionType descType) {
+  private static boolean typesMatch(final ItemType type, final ItemType descType) {
     return switch (type) {
       case NONE, FOOD_HELPER, DRINK_HELPER, STICKER, FOLDER, POKEPILL ->
       // We intentionally disallow certain items from being
       // "used" through the GUI.
-      descType == ConsumptionType.NONE || descType == ConsumptionType.USE;
+      descType == ItemType.NONE || descType == ItemType.USE;
       case EAT,
           DRINK,
           SPLEEN,
@@ -682,14 +682,14 @@ public class DebugDatabase {
           SHIRT,
           WEAPON,
           OFFHAND -> descType == type;
-      case USE_MESSAGE_DISPLAY, USE, USE_MULTIPLE, USE_INFINITE -> descType == ConsumptionType.USE
-          || descType == ConsumptionType.USE_MULTIPLE
-          || descType == ConsumptionType.EAT
-          || descType == ConsumptionType.DRINK
-          || descType == ConsumptionType.AVATAR_POTION
-          || descType == ConsumptionType.NONE;
-      case POTION, AVATAR_POTION -> descType == ConsumptionType.POTION;
-      case CARD, EL_VIBRATO_SPHERE, ZAP -> descType == ConsumptionType.NONE;
+      case USE_MESSAGE_DISPLAY, USE, USE_MULTIPLE, USE_INFINITE -> descType == ItemType.USE
+          || descType == ItemType.USE_MULTIPLE
+          || descType == ItemType.EAT
+          || descType == ItemType.DRINK
+          || descType == ItemType.AVATAR_POTION
+          || descType == ItemType.NONE;
+      case POTION, AVATAR_POTION -> descType == ItemType.POTION;
+      case CARD, EL_VIBRATO_SPHERE, ZAP -> descType == ItemType.NONE;
       default -> true;
     };
   }
@@ -750,9 +750,9 @@ public class DebugDatabase {
   private static void checkConsumableItems(final PrintStream report) {
     RequestLogger.printLine("Checking level requirements...");
 
-    DebugDatabase.checkConsumableMap(report, DebugDatabase.findItemMap(ConsumptionType.EAT));
-    DebugDatabase.checkConsumableMap(report, DebugDatabase.findItemMap(ConsumptionType.DRINK));
-    DebugDatabase.checkConsumableMap(report, DebugDatabase.findItemMap(ConsumptionType.SPLEEN));
+    DebugDatabase.checkConsumableMap(report, DebugDatabase.findItemMap(ItemType.EAT));
+    DebugDatabase.checkConsumableMap(report, DebugDatabase.findItemMap(ItemType.DRINK));
+    DebugDatabase.checkConsumableMap(report, DebugDatabase.findItemMap(ItemType.SPLEEN));
   }
 
   private static void checkConsumableMap(final PrintStream report, final ItemMap imap) {
@@ -762,11 +762,9 @@ public class DebugDatabase {
     }
 
     String tag = imap.getTag();
-    ConsumptionType type = imap.getType();
+    ItemType type = imap.getType();
     String file =
-        type == ConsumptionType.EAT
-            ? "fullness"
-            : type == ConsumptionType.DRINK ? "inebriety" : "spleenhit";
+        type == ItemType.EAT ? "fullness" : type == ItemType.DRINK ? "inebriety" : "spleenhit";
 
     RequestLogger.printLine("Checking " + tag + "...");
 
@@ -781,7 +779,7 @@ public class DebugDatabase {
   }
 
   private static void checkConsumableDatum(
-      final String name, final ConsumptionType type, final String text, final PrintStream report) {
+      final String name, final ItemType type, final String text, final PrintStream report) {
     Integer requirement = ConsumablesDatabase.getLevelReqByName(name);
     int level = requirement == null ? 0 : requirement;
     int descLevel = DebugDatabase.parseLevel(text);
@@ -791,11 +789,11 @@ public class DebugDatabase {
     }
 
     int size =
-        (type == ConsumptionType.EAT)
+        (type == ItemType.EAT)
             ? ConsumablesDatabase.getFullness(name)
-            : (type == ConsumptionType.DRINK)
+            : (type == ItemType.DRINK)
                 ? ConsumablesDatabase.getInebriety(name)
-                : (type == ConsumptionType.SPLEEN) ? ConsumablesDatabase.getSpleenHit(name) : 1;
+                : (type == ItemType.SPLEEN) ? ConsumablesDatabase.getSpleenHit(name) : 1;
 
     int descSize = DebugDatabase.parseSize(text);
     if (size != descSize) {
@@ -842,13 +840,13 @@ public class DebugDatabase {
 
     RequestLogger.printLine("Checking equipment...");
 
-    DebugDatabase.checkEquipmentMap(report, DebugDatabase.findItemMap(ConsumptionType.HAT));
-    DebugDatabase.checkEquipmentMap(report, DebugDatabase.findItemMap(ConsumptionType.PANTS));
-    DebugDatabase.checkEquipmentMap(report, DebugDatabase.findItemMap(ConsumptionType.SHIRT));
-    DebugDatabase.checkEquipmentMap(report, DebugDatabase.findItemMap(ConsumptionType.WEAPON));
-    DebugDatabase.checkEquipmentMap(report, DebugDatabase.findItemMap(ConsumptionType.OFFHAND));
-    DebugDatabase.checkEquipmentMap(report, DebugDatabase.findItemMap(ConsumptionType.ACCESSORY));
-    DebugDatabase.checkEquipmentMap(report, DebugDatabase.findItemMap(ConsumptionType.CONTAINER));
+    DebugDatabase.checkEquipmentMap(report, DebugDatabase.findItemMap(ItemType.HAT));
+    DebugDatabase.checkEquipmentMap(report, DebugDatabase.findItemMap(ItemType.PANTS));
+    DebugDatabase.checkEquipmentMap(report, DebugDatabase.findItemMap(ItemType.SHIRT));
+    DebugDatabase.checkEquipmentMap(report, DebugDatabase.findItemMap(ItemType.WEAPON));
+    DebugDatabase.checkEquipmentMap(report, DebugDatabase.findItemMap(ItemType.OFFHAND));
+    DebugDatabase.checkEquipmentMap(report, DebugDatabase.findItemMap(ItemType.ACCESSORY));
+    DebugDatabase.checkEquipmentMap(report, DebugDatabase.findItemMap(ItemType.CONTAINER));
   }
 
   private static void checkEquipmentMap(final PrintStream report, ItemMap imap) {
@@ -1008,29 +1006,22 @@ public class DebugDatabase {
   private static void checkItemModifiers(final PrintStream report) {
     RequestLogger.printLine("Checking modifiers...");
 
-    DebugDatabase.checkItemModifierMap(report, DebugDatabase.findItemMap(ConsumptionType.HAT));
-    DebugDatabase.checkItemModifierMap(report, DebugDatabase.findItemMap(ConsumptionType.PANTS));
-    DebugDatabase.checkItemModifierMap(report, DebugDatabase.findItemMap(ConsumptionType.SHIRT));
-    DebugDatabase.checkItemModifierMap(report, DebugDatabase.findItemMap(ConsumptionType.WEAPON));
-    DebugDatabase.checkItemModifierMap(report, DebugDatabase.findItemMap(ConsumptionType.OFFHAND));
+    DebugDatabase.checkItemModifierMap(report, DebugDatabase.findItemMap(ItemType.HAT));
+    DebugDatabase.checkItemModifierMap(report, DebugDatabase.findItemMap(ItemType.PANTS));
+    DebugDatabase.checkItemModifierMap(report, DebugDatabase.findItemMap(ItemType.SHIRT));
+    DebugDatabase.checkItemModifierMap(report, DebugDatabase.findItemMap(ItemType.WEAPON));
+    DebugDatabase.checkItemModifierMap(report, DebugDatabase.findItemMap(ItemType.OFFHAND));
+    DebugDatabase.checkItemModifierMap(report, DebugDatabase.findItemMap(ItemType.ACCESSORY));
+    DebugDatabase.checkItemModifierMap(report, DebugDatabase.findItemMap(ItemType.CONTAINER));
     DebugDatabase.checkItemModifierMap(
-        report, DebugDatabase.findItemMap(ConsumptionType.ACCESSORY));
+        report, DebugDatabase.findItemMap(ItemType.FAMILIAR_EQUIPMENT));
+    DebugDatabase.checkItemModifierMap(report, DebugDatabase.findItemMap(ItemType.EAT), false);
+    DebugDatabase.checkItemModifierMap(report, DebugDatabase.findItemMap(ItemType.DRINK), false);
+    DebugDatabase.checkItemModifierMap(report, DebugDatabase.findItemMap(ItemType.SPLEEN), false);
+    DebugDatabase.checkItemModifierMap(report, DebugDatabase.findItemMap(ItemType.POTION), false);
     DebugDatabase.checkItemModifierMap(
-        report, DebugDatabase.findItemMap(ConsumptionType.CONTAINER));
-    DebugDatabase.checkItemModifierMap(
-        report, DebugDatabase.findItemMap(ConsumptionType.FAMILIAR_EQUIPMENT));
-    DebugDatabase.checkItemModifierMap(
-        report, DebugDatabase.findItemMap(ConsumptionType.EAT), false);
-    DebugDatabase.checkItemModifierMap(
-        report, DebugDatabase.findItemMap(ConsumptionType.DRINK), false);
-    DebugDatabase.checkItemModifierMap(
-        report, DebugDatabase.findItemMap(ConsumptionType.SPLEEN), false);
-    DebugDatabase.checkItemModifierMap(
-        report, DebugDatabase.findItemMap(ConsumptionType.POTION), false);
-    DebugDatabase.checkItemModifierMap(
-        report, DebugDatabase.findItemMap(ConsumptionType.AVATAR_POTION), false);
-    DebugDatabase.checkItemModifierMap(
-        report, DebugDatabase.findItemMap(ConsumptionType.UNKNOWN), false);
+        report, DebugDatabase.findItemMap(ItemType.AVATAR_POTION), false);
+    DebugDatabase.checkItemModifierMap(report, DebugDatabase.findItemMap(ItemType.UNKNOWN), false);
   }
 
   private static void checkItemModifierMap(final PrintStream report, final ItemMap imap) {
@@ -1051,7 +1042,7 @@ public class DebugDatabase {
     report.println("# " + tag + " section of modifiers.txt");
     report.println();
 
-    ConsumptionType type = imap.getType();
+    ItemType type = imap.getType();
     for (Entry<String, String> entry : map.entrySet()) {
       String name = entry.getKey();
       String text = entry.getValue();
@@ -1062,7 +1053,7 @@ public class DebugDatabase {
   private static void checkItemModifierDatum(
       final String name,
       final String text,
-      final ConsumptionType type,
+      final ItemType type,
       final PrintStream report,
       final boolean showAll) {
     ModifierList known = new ModifierList();
@@ -1239,10 +1230,7 @@ public class DebugDatabase {
           Pattern.DOTALL);
 
   public static final void parseItemEnchantments(
-      String text,
-      final ModifierList known,
-      final ArrayList<String> unknown,
-      final ConsumptionType type) {
+      String text, final ModifierList known, final ArrayList<String> unknown, final ItemType type) {
     // KoL now includes the enchantments of the effect in the item
     // descriptions. Strip them out.
     int eindex = text.indexOf("Effect:");
@@ -1278,7 +1266,7 @@ public class DebugDatabase {
     DebugDatabase.appendModifier(known, Modifiers.parseSongDuration(text));
     DebugDatabase.appendModifier(known, Modifiers.parseDropsItems(text));
 
-    if (type == ConsumptionType.FAMILIAR_EQUIPMENT) {
+    if (type == ItemType.FAMILIAR_EQUIPMENT) {
       String familiar = DebugDatabase.parseFamiliar(text);
       if (familiar.equals("any")) {
         DebugDatabase.appendModifier(known, "Generic");
@@ -1347,13 +1335,13 @@ public class DebugDatabase {
   }
 
   public static final String parseItemEnchantments(
-      final String text, final ArrayList<String> unknown, final ConsumptionType type) {
+      final String text, final ArrayList<String> unknown, final ItemType type) {
     ModifierList known = new ModifierList();
     DebugDatabase.parseItemEnchantments(text, known, unknown, type);
     return DebugDatabase.createModifierString(known);
   }
 
-  public static final String parseItemEnchantments(final String text, final ConsumptionType type) {
+  public static final String parseItemEnchantments(final String text, final ItemType type) {
     ModifierList known = new ModifierList();
     ArrayList<String> unknown = new ArrayList<>();
     DebugDatabase.parseItemEnchantments(text, known, unknown, type);
@@ -1553,7 +1541,7 @@ public class DebugDatabase {
   private static final String OUTFIT_HTML = "outfithtml.txt";
   private static final String OUTFIT_DATA = "outfitdata.txt";
   private static final Map<Integer, String> rawOutfits = new HashMap<>();
-  private static final ItemMap outfits = new ItemMap("Outfits", ConsumptionType.NONE);
+  private static final ItemMap outfits = new ItemMap("Outfits", ItemType.NONE);
 
   public static final void checkOutfits() {
     RequestLogger.printLine("Loading previous data...");
@@ -1730,7 +1718,7 @@ public class DebugDatabase {
   private static final String EFFECT_HTML = "effecthtml.txt";
   private static final String EFFECT_DATA = "effectdata.txt";
   private static final Map<Integer, String> rawEffects = new HashMap<>();
-  private static final ItemMap effects = new ItemMap("Status Effects", ConsumptionType.NONE);
+  private static final ItemMap effects = new ItemMap("Status Effects", ItemType.NONE);
 
   public static final void checkEffects(final int effectId) {
     RequestLogger.printLine("Loading previous data...");
@@ -1972,7 +1960,7 @@ public class DebugDatabase {
   private static final String SKILL_HTML = "skillhtml.txt";
   private static final String SKILL_DATA = "skilldata.txt";
   private static final Map<Integer, String> rawSkills = new HashMap<>();
-  private static final ItemMap passiveSkills = new ItemMap("Passive Skills", ConsumptionType.NONE);
+  private static final ItemMap passiveSkills = new ItemMap("Passive Skills", ItemType.NONE);
 
   public static final void checkSkills(final int skillId) {
     RequestLogger.printLine("Loading previous data...");
@@ -2419,10 +2407,8 @@ public class DebugDatabase {
 
   private static boolean powerFilter(AdventureResult item) {
     int itemId = item.getItemId();
-    ConsumptionType type = ItemDatabase.getConsumptionType(itemId);
-    return (type == ConsumptionType.OFFHAND
-        || type == ConsumptionType.ACCESSORY
-        || type == ConsumptionType.CONTAINER);
+    ItemType type = ItemDatabase.getConsumptionType(itemId);
+    return (type == ItemType.OFFHAND || type == ItemType.ACCESSORY || type == ItemType.CONTAINER);
   }
 
   private static boolean unknownPower(AdventureResult item) {

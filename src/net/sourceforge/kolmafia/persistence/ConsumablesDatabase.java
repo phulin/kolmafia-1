@@ -17,7 +17,6 @@ import java.util.stream.Collectors;
 import net.sourceforge.kolmafia.AdventureResult;
 import net.sourceforge.kolmafia.KoLCharacter;
 import net.sourceforge.kolmafia.KoLConstants;
-import net.sourceforge.kolmafia.KoLConstants.ConsumptionType;
 import net.sourceforge.kolmafia.Modifiers;
 import net.sourceforge.kolmafia.RequestLogger;
 import net.sourceforge.kolmafia.StaticEntity;
@@ -26,6 +25,7 @@ import net.sourceforge.kolmafia.objectpool.ConcoctionPool;
 import net.sourceforge.kolmafia.objectpool.EffectPool;
 import net.sourceforge.kolmafia.objectpool.ItemPool;
 import net.sourceforge.kolmafia.objectpool.SkillPool;
+import net.sourceforge.kolmafia.objecttypes.ItemType;
 import net.sourceforge.kolmafia.preferences.Preferences;
 import net.sourceforge.kolmafia.request.UseSkillRequest;
 import net.sourceforge.kolmafia.session.EquipmentManager;
@@ -135,11 +135,11 @@ public class ConsumablesDatabase {
 
   public static void reset() {
     ConsumablesDatabase.readConsumptionData(
-        "fullness.txt", KoLConstants.FULLNESS_VERSION, ConsumptionType.EAT);
+        "fullness.txt", KoLConstants.FULLNESS_VERSION, ItemType.EAT);
     ConsumablesDatabase.readConsumptionData(
-        "inebriety.txt", KoLConstants.INEBRIETY_VERSION, ConsumptionType.DRINK);
+        "inebriety.txt", KoLConstants.INEBRIETY_VERSION, ItemType.DRINK);
     ConsumablesDatabase.readConsumptionData(
-        "spleenhit.txt", KoLConstants.SPLEENHIT_VERSION, ConsumptionType.SPLEEN);
+        "spleenhit.txt", KoLConstants.SPLEENHIT_VERSION, ItemType.SPLEEN);
     ConsumablesDatabase.readNonfillingData();
 
     // Once we have all this data, we can init the ConcoctionDatabase.
@@ -157,7 +157,7 @@ public class ConsumablesDatabase {
     writer.println(consumable.toString());
   }
 
-  private static void readConsumptionData(String filename, int version, ConsumptionType usage) {
+  private static void readConsumptionData(String filename, int version, ItemType usage) {
     try (BufferedReader reader = FileUtilities.getVersionedReader(filename, version)) {
       String[] data;
 
@@ -251,7 +251,7 @@ public class ConsumablesDatabase {
     }
   }
 
-  private static void saveConsumptionValues(String[] data, ConsumptionType usage) {
+  private static void saveConsumptionValues(String[] data, ItemType usage) {
     if (data.length < 2) {
       return;
     }
@@ -294,9 +294,9 @@ public class ConsumablesDatabase {
     Consumable consumable =
         setConsumptionData(
             name,
-            usage == ConsumptionType.EAT ? size : null,
-            usage == ConsumptionType.DRINK ? size : null,
-            usage == ConsumptionType.SPLEEN ? size : null,
+            usage == ItemType.EAT ? size : null,
+            usage == ItemType.DRINK ? size : null,
+            usage == ItemType.SPLEEN ? size : null,
             level,
             quality,
             adventures,
@@ -353,7 +353,7 @@ public class ConsumablesDatabase {
     int advs = (c == null) ? 0 : c.getAdventuresNeeded(1, true);
 
     if (KoLCharacter.inNuclearAutumn()) {
-      if (consumable.getConsumptionType() == ConsumptionType.EAT) {
+      if (consumable.getConsumptionType() == ItemType.EAT) {
         int multiplier = 1;
         if (KoLCharacter.hasSkill(SkillPool.EXTRA_GALL_BLADDER)) multiplier += 1;
         if (KoLConstants.activeEffects.contains(EffectPool.get(EffectPool.RECORD_HUNGER)))
@@ -362,7 +362,7 @@ public class ConsumablesDatabase {
         end *= multiplier;
       }
       // && KoLCharacter.hasSkill(SkillPool.EXTRA_KIDNEY)
-      else if (consumable.getConsumptionType() == ConsumptionType.DRINK) {
+      else if (consumable.getConsumptionType() == ItemType.DRINK) {
         int multiplier = 1;
         if (KoLCharacter.hasSkill(SkillPool.EXTRA_KIDNEY)) multiplier += 1;
         if (KoLConstants.activeEffects.contains(EffectPool.get(EffectPool.DRUNK_AVUNCULAR)))
@@ -404,7 +404,7 @@ public class ConsumablesDatabase {
     ConsumablesDatabase.addCurrentAdventures(name, size, true, true, false, false, gain2);
 
     // Only foods have effects 3-4
-    if (consumable.getConsumptionType() != ConsumptionType.EAT) {
+    if (consumable.getConsumptionType() != ItemType.EAT) {
       return;
     }
 
@@ -521,11 +521,9 @@ public class ConsumablesDatabase {
   }
 
   public static void registerConsumable(
-      final String itemName, final ConsumptionType usage, final String text) {
+      final String itemName, final ItemType usage, final String text) {
     // Get information from description
-    if (usage != ConsumptionType.EAT
-        && usage != ConsumptionType.DRINK
-        && usage != ConsumptionType.SPLEEN) {
+    if (usage != ItemType.EAT && usage != ItemType.DRINK && usage != ItemType.SPLEEN) {
       return;
     }
 
