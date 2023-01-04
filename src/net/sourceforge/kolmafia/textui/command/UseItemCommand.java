@@ -3,13 +3,13 @@ package net.sourceforge.kolmafia.textui.command;
 import net.sourceforge.kolmafia.AdventureResult;
 import net.sourceforge.kolmafia.KoLCharacter;
 import net.sourceforge.kolmafia.KoLConstants;
-import net.sourceforge.kolmafia.KoLConstants.ConsumptionType;
 import net.sourceforge.kolmafia.KoLConstants.MafiaState;
 import net.sourceforge.kolmafia.KoLmafia;
 import net.sourceforge.kolmafia.KoLmafiaCLI;
 import net.sourceforge.kolmafia.RequestLogger;
 import net.sourceforge.kolmafia.RequestThread;
 import net.sourceforge.kolmafia.SpecialOutfit.Checkpoint;
+import net.sourceforge.kolmafia.objecttypes.ItemType;
 import net.sourceforge.kolmafia.persistence.ItemDatabase;
 import net.sourceforge.kolmafia.persistence.ItemFinder;
 import net.sourceforge.kolmafia.persistence.ItemFinder.Match;
@@ -88,36 +88,36 @@ public class UseItemCommand extends AbstractCommand {
 
     // Now, handle the instance where the first item is actually
     // the quantity desired, and the next is the amount to use
-    ConsumptionType consumptionType = ConsumptionType.NONE;
+    ItemType itemType = ItemType.NONE;
     Match filter;
 
     switch (command) {
       case "eat", "eatsilent" -> {
-        consumptionType = ConsumptionType.EAT;
+        itemType = ItemType.EAT;
         filter = Match.FOOD;
       }
       case "ghost" -> {
-        consumptionType = ConsumptionType.GLUTTONOUS_GHOST;
+        itemType = ItemType.GLUTTONOUS_GHOST;
         filter = Match.FOOD;
       }
       case "drink", "overdrink" -> {
-        consumptionType = ConsumptionType.DRINK;
+        itemType = ItemType.DRINK;
         filter = Match.BOOZE;
       }
       case "hobo" -> {
-        consumptionType = ConsumptionType.SPIRIT_HOBO;
+        itemType = ItemType.SPIRIT_HOBO;
         filter = Match.BOOZE;
       }
       case "chew" -> {
-        consumptionType = ConsumptionType.SPLEEN;
+        itemType = ItemType.SPLEEN;
         filter = Match.SPLEEN;
       }
       case "slimeling" -> {
-        consumptionType = ConsumptionType.SLIMELING;
+        itemType = ItemType.SLIMELING;
         filter = Match.EQUIP;
       }
       case "robo" -> {
-        consumptionType = ConsumptionType.ROBORTENDER;
+        itemType = ItemType.ROBORTENDER;
         filter = Match.ROBO;
       }
       default -> filter = Match.USE;
@@ -156,26 +156,26 @@ public class UseItemCommand extends AbstractCommand {
           continue;
         }
 
-        ConsumptionType consumpt = ItemDatabase.getConsumptionType(itemId);
+        ItemType consumpt = ItemDatabase.getConsumptionType(itemId);
 
-        if (command.equals("eat") && consumpt == ConsumptionType.FOOD_HELPER) { // allowed
+        if (command.equals("eat") && consumpt == ItemType.FOOD_HELPER) { // allowed
         } else if (command.equals("eat") || command.equals("ghost")) {
-          if (consumpt != ConsumptionType.EAT) {
+          if (consumpt != ItemType.EAT) {
             KoLmafia.updateDisplay(
                 MafiaState.ERROR, currentMatch.getName() + " cannot be consumed.");
             return false;
           }
         }
 
-        if (command.equals("drink") && consumpt == ConsumptionType.DRINK_HELPER) { // allowed
+        if (command.equals("drink") && consumpt == ItemType.DRINK_HELPER) { // allowed
         } else if (command.equals("drink") || command.equals("hobo")) {
-          if (consumpt != ConsumptionType.DRINK) {
+          if (consumpt != ItemType.DRINK) {
             KoLmafia.updateDisplay(
                 MafiaState.ERROR, currentMatch.getName() + " is not an alcoholic beverage.");
             return false;
           }
         } else if (command.equals("chew")) {
-          if (consumpt != ConsumptionType.SPLEEN) {
+          if (consumpt != ItemType.SPLEEN) {
             KoLmafia.updateDisplay(
                 MafiaState.ERROR, currentMatch.getName() + " is not a spleen toxin.");
             return false;
@@ -206,8 +206,8 @@ public class UseItemCommand extends AbstractCommand {
             RequestLogger.printLine(currentMatch.toString());
           } else {
             UseItemRequest request =
-                consumptionType != ConsumptionType.NONE
-                    ? UseItemRequest.getInstance(consumptionType, currentMatch)
+                itemType != ItemType.NONE
+                    ? UseItemRequest.getInstance(itemType, currentMatch)
                     : UseItemRequest.getInstance(currentMatch);
 
             if (sim) {

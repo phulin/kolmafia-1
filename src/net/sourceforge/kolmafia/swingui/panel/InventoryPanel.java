@@ -11,8 +11,8 @@ import javax.swing.JRadioButton;
 import net.java.dev.spellcast.utilities.LockableListModel;
 import net.sourceforge.kolmafia.AdventureResult;
 import net.sourceforge.kolmafia.KoLConstants;
-import net.sourceforge.kolmafia.KoLConstants.ConsumptionType;
 import net.sourceforge.kolmafia.RequestThread;
+import net.sourceforge.kolmafia.objecttypes.ItemType;
 import net.sourceforge.kolmafia.persistence.ItemDatabase;
 import net.sourceforge.kolmafia.request.CreateItemRequest;
 import net.sourceforge.kolmafia.request.UseItemRequest;
@@ -197,7 +197,7 @@ public class InventoryPanel<E> extends ItemTableManagePanel<E> {
       for (int i = 0; i < items.length; ++i) {
         AdventureResult item = items[i];
 
-        RequestThread.postRequest(UseItemRequest.getInstance(ConsumptionType.SLIMELING, item));
+        RequestThread.postRequest(UseItemRequest.getInstance(ItemType.SLIMELING, item));
       }
     }
 

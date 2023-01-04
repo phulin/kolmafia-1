@@ -23,7 +23,6 @@ import net.java.dev.spellcast.utilities.SortedListModel;
 import net.sourceforge.kolmafia.AdventureResult;
 import net.sourceforge.kolmafia.KoLCharacter;
 import net.sourceforge.kolmafia.KoLConstants;
-import net.sourceforge.kolmafia.KoLConstants.ConsumptionType;
 import net.sourceforge.kolmafia.KoLmafia;
 import net.sourceforge.kolmafia.RequestThread;
 import net.sourceforge.kolmafia.RestrictedItemType;
@@ -31,6 +30,7 @@ import net.sourceforge.kolmafia.listener.Listener;
 import net.sourceforge.kolmafia.listener.NamedListenerRegistry;
 import net.sourceforge.kolmafia.listener.PreferenceListenerRegistry;
 import net.sourceforge.kolmafia.objectpool.ConcoctionType;
+import net.sourceforge.kolmafia.objecttypes.ItemType;
 import net.sourceforge.kolmafia.persistence.ConcoctionDatabase;
 import net.sourceforge.kolmafia.persistence.ItemDatabase;
 import net.sourceforge.kolmafia.preferences.Preferences;
@@ -481,9 +481,8 @@ public class ItemManageFrame extends GenericFrame {
         return super.getDesiredItemAmount(item, itemName, itemCount, message, quantityType);
       }
 
-      ConsumptionType consumptionType =
-          ItemDatabase.getConsumptionType(((AdventureResult) item).getItemId());
-      return switch (consumptionType) {
+      ItemType itemType = ItemDatabase.getConsumptionType(((AdventureResult) item).getItemId());
+      return switch (itemType) {
         case HAT, PANTS, SHIRT, CONTAINER, WEAPON, OFFHAND -> 1;
         default -> super.getDesiredItemAmount(item, itemName, itemCount, message, quantityType);
       };

@@ -14,7 +14,6 @@ import net.java.dev.spellcast.utilities.LockableListModel;
 import net.sourceforge.kolmafia.AdventureResult;
 import net.sourceforge.kolmafia.KoLCharacter;
 import net.sourceforge.kolmafia.KoLConstants;
-import net.sourceforge.kolmafia.KoLConstants.ConsumptionType;
 import net.sourceforge.kolmafia.KoLConstants.MafiaState;
 import net.sourceforge.kolmafia.KoLmafia;
 import net.sourceforge.kolmafia.Modifiers;
@@ -22,6 +21,7 @@ import net.sourceforge.kolmafia.RequestThread;
 import net.sourceforge.kolmafia.RestrictedItemType;
 import net.sourceforge.kolmafia.objectpool.Concoction;
 import net.sourceforge.kolmafia.objectpool.ItemPool;
+import net.sourceforge.kolmafia.objecttypes.ItemType;
 import net.sourceforge.kolmafia.persistence.ConcoctionDatabase;
 import net.sourceforge.kolmafia.persistence.EquipmentDatabase;
 import net.sourceforge.kolmafia.persistence.ItemDatabase;
@@ -551,7 +551,7 @@ public abstract class ItemManagePanel<E, S extends JComponent> extends Scrollabl
 
       for (int i = 0; i < items.length; ++i) {
         AdventureResult item = items[i];
-        ConsumptionType usageType = ItemDatabase.getConsumptionType(item.getItemId());
+        ItemType usageType = ItemDatabase.getConsumptionType(item.getItemId());
 
         switch (usageType) {
           case FAMILIAR_EQUIPMENT,

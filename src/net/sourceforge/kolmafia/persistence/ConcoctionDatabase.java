@@ -22,7 +22,6 @@ import net.sourceforge.kolmafia.CoinmasterData;
 import net.sourceforge.kolmafia.CoinmasterRegistry;
 import net.sourceforge.kolmafia.KoLCharacter;
 import net.sourceforge.kolmafia.KoLConstants;
-import net.sourceforge.kolmafia.KoLConstants.ConsumptionType;
 import net.sourceforge.kolmafia.KoLConstants.CraftingMisc;
 import net.sourceforge.kolmafia.KoLConstants.CraftingRequirements;
 import net.sourceforge.kolmafia.KoLConstants.CraftingType;
@@ -41,6 +40,7 @@ import net.sourceforge.kolmafia.objectpool.EffectPool;
 import net.sourceforge.kolmafia.objectpool.FamiliarPool;
 import net.sourceforge.kolmafia.objectpool.ItemPool;
 import net.sourceforge.kolmafia.objectpool.SkillPool;
+import net.sourceforge.kolmafia.objecttypes.ItemType;
 import net.sourceforge.kolmafia.persistence.QuestDatabase.Quest;
 import net.sourceforge.kolmafia.preferences.Preferences;
 import net.sourceforge.kolmafia.request.CampgroundRequest;
@@ -467,10 +467,10 @@ public class ConcoctionDatabase {
     LockableListModel<AdventureResult> queuedIngredients;
 
     int id = c.getItemId();
-    ConsumptionType consumpt = ItemDatabase.getConsumptionType(id);
+    ItemType consumpt = ItemDatabase.getConsumptionType(id);
 
     if (c.getFullness() > 0
-        || consumpt == ConsumptionType.FOOD_HELPER
+        || consumpt == ItemType.FOOD_HELPER
         || ConcoctionDatabase.canQueueFood(id)) {
       queue = ConcoctionDatabase.queuedFood;
       queuedIngredients = ConcoctionDatabase.queuedFoodIngredients;
@@ -479,7 +479,7 @@ public class ConcoctionDatabase {
         ConcoctionDatabase.queuedInebriety++;
       }
     } else if (c.getInebriety() > 0
-        || consumpt == ConsumptionType.DRINK_HELPER
+        || consumpt == ItemType.DRINK_HELPER
         || ConcoctionDatabase.canQueueBooze(id)) {
       queue = ConcoctionDatabase.queuedBooze;
       queuedIngredients = ConcoctionDatabase.queuedBoozeIngredients;
@@ -806,7 +806,7 @@ public class ConcoctionDatabase {
             : type == ConcoctionType.BOOZE ? DrinkItemRequest.boozeConsumed : 0);
   }
 
-  public static final void handleQueue(ConcoctionType type, ConsumptionType consumptionType) {
+  public static final void handleQueue(ConcoctionType type, ItemType itemType) {
     // consumptionType can be:
     //
     // ConsumptionType.NONE - create or retrieve items
@@ -834,7 +834,7 @@ public class ConcoctionDatabase {
     ConcoctionDatabase.refreshConcoctionsNow();
 
     try (Checkpoint checkpoint = new Checkpoint()) {
-      ConcoctionDatabase.handleQueue(toProcess, type, consumptionType);
+      ConcoctionDatabase.handleQueue(toProcess, type, itemType);
     }
 
     // Refresh again now that ingredients have been deducted
@@ -842,7 +842,7 @@ public class ConcoctionDatabase {
   }
 
   private static void handleQueue(
-      Stack<QueuedConcoction> toProcess, ConcoctionType type, ConsumptionType consumptionType) {
+      Stack<QueuedConcoction> toProcess, ConcoctionType type, ItemType itemType) {
     // Keep track of current consumption helper. These can be
     // "queued" by simply "using" them. Account for that.
     AdventureResult helper = ConcoctionDatabase.currentConsumptionHelper(type);
@@ -854,9 +854,7 @@ public class ConcoctionDatabase {
       Concoction c = currentItem.getConcoction();
       int quantity = currentItem.getCount();
 
-      if (consumptionType != ConsumptionType.EAT
-          && consumptionType != ConsumptionType.DRINK
-          && consumptionType != ConsumptionType.SPLEEN) {
+      if (itemType != ItemType.EAT && itemType != ItemType.DRINK && itemType != ItemType.SPLEEN) {
         // Binge familiar or create only
 
         // If it's not an actual item, it's a purchase from a cafe.
@@ -865,20 +863,19 @@ public class ConcoctionDatabase {
           continue;
         }
 
-        ConsumptionType consumpt = ItemDatabase.getConsumptionType(c.getItemId());
+        ItemType consumpt = ItemDatabase.getConsumptionType(c.getItemId());
 
         // Skip consumption helpers; we cannot binge a
         // familiar with them and we don't "create" them
-        if (consumpt == ConsumptionType.FOOD_HELPER || consumpt == ConsumptionType.DRINK_HELPER) {
+        if (consumpt == ItemType.FOOD_HELPER || consumpt == ItemType.DRINK_HELPER) {
           continue;
         }
 
         // Certain items are virtual consumption
         // helpers, but are "used" first. Skip if
         // bingeing familiar.
-        if ((consumptionType == ConsumptionType.GLUTTONOUS_GHOST && consumpt != ConsumptionType.EAT)
-            || (consumptionType == ConsumptionType.SPIRIT_HOBO
-                && consumpt != ConsumptionType.DRINK)) {
+        if ((itemType == ItemType.GLUTTONOUS_GHOST && consumpt != ItemType.EAT)
+            || (itemType == ItemType.SPIRIT_HOBO && consumpt != ItemType.DRINK)) {
           continue;
         }
 
@@ -886,14 +883,13 @@ public class ConcoctionDatabase {
         AdventureResult toConsume = c.getItem().getInstance(quantity);
         InventoryManager.retrieveItem(toConsume);
 
-        if (consumptionType == ConsumptionType.GLUTTONOUS_GHOST
-            | consumptionType == ConsumptionType.SPIRIT_HOBO) {
+        if (itemType == ItemType.GLUTTONOUS_GHOST | itemType == ItemType.SPIRIT_HOBO) {
           // Binge the familiar!
-          RequestThread.postRequest(UseItemRequest.getInstance(consumptionType, toConsume));
+          RequestThread.postRequest(UseItemRequest.getInstance(itemType, toConsume));
           continue;
         }
 
-        if (consumptionType == ConsumptionType.NONE) {
+        if (itemType == ItemType.NONE) {
           // Create only
           continue;
         }
@@ -904,7 +900,7 @@ public class ConcoctionDatabase {
 
       // "using" the item will either queue a consumption
       // helper or actually consume the item.
-      ConcoctionDatabase.consumeItem(c, quantity, consumptionType);
+      ConcoctionDatabase.consumeItem(c, quantity, itemType);
 
       if (!KoLmafia.permitsContinue()) {
         // Consumption failed.
@@ -957,7 +953,7 @@ public class ConcoctionDatabase {
     }
   }
 
-  private static void consumeItem(Concoction c, int quantity, ConsumptionType consumptionType) {
+  private static void consumeItem(Concoction c, int quantity, ItemType itemType) {
     AdventureResult item = c.getItem();
 
     // If it's food we're consuming, we have a MayoMinder set, and we are autostocking it, do so
@@ -966,7 +962,7 @@ public class ConcoctionDatabase {
     String minderSetting = Preferences.getString("mayoMinderSetting");
     AdventureResult workshedItem = CampgroundRequest.getCurrentWorkshedItem();
     if (item != null
-        && consumptionType == ConsumptionType.EAT
+        && itemType == ItemType.EAT
         && !ConcoctionDatabase.isMayo(item.getItemId())
         && !minderSetting.equals("")
         && Preferences.getBoolean("autoFillMayoMinder")
@@ -990,14 +986,14 @@ public class ConcoctionDatabase {
         // First, consume any items which appear in the inventory.
         int initial = Math.min(quantity, InventoryManager.getCount(item.getItemId()));
         if (initial > 0) {
-          request = UseItemRequest.getInstance(consumptionType, item.getInstance(initial));
+          request = UseItemRequest.getInstance(itemType, item.getInstance(initial));
           RequestThread.postRequest(request);
           quantity -= initial;
         }
 
         // Second, let UseItemRequest acquire remaining items.
         if (quantity > 0) {
-          request = UseItemRequest.getInstance(consumptionType, item.getInstance(quantity));
+          request = UseItemRequest.getInstance(itemType, item.getInstance(quantity));
           RequestThread.postRequest(request);
         }
         return;

@@ -2,7 +2,7 @@ package net.sourceforge.kolmafia.persistence;
 
 import java.util.Arrays;
 import java.util.Set;
-import net.sourceforge.kolmafia.KoLConstants.ConsumptionType;
+import net.sourceforge.kolmafia.objecttypes.ItemType;
 
 // Consumable represents the static attributes of a consumable as pulled out of a line in the
 // relevant data file.
@@ -77,12 +77,12 @@ public class Consumable {
     };
   }
 
-  public ConsumptionType getConsumptionType() {
+  public ItemType getConsumptionType() {
     return this.fullness != null
-        ? ConsumptionType.EAT
+        ? ItemType.EAT
         : this.inebriety != null
-            ? ConsumptionType.DRINK
-            : this.spleenHit != null ? ConsumptionType.SPLEEN : ConsumptionType.USE;
+            ? ItemType.DRINK
+            : this.spleenHit != null ? ItemType.SPLEEN : ItemType.USE;
   }
 
   public Integer getRawFullness() {

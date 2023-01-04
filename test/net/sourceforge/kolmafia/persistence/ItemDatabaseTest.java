@@ -5,8 +5,8 @@ import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.is;
 
 import java.util.EnumSet;
-import net.sourceforge.kolmafia.KoLConstants.ConsumptionType;
 import net.sourceforge.kolmafia.objectpool.ItemPool;
+import net.sourceforge.kolmafia.objecttypes.ItemType;
 import net.sourceforge.kolmafia.persistence.ItemDatabase.Attribute;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -73,7 +73,7 @@ public class ItemDatabaseTest {
             "tattered scrap of paper",
             "695577512",
             "tatpaper.gif",
-            ConsumptionType.NONE,
+            ItemType.NONE,
             EnumSet.of(Attribute.COMBAT, Attribute.SOLO, Attribute.PASTE),
             "t,d",
             45,

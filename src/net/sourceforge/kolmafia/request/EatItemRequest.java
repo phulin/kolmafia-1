@@ -7,7 +7,6 @@ import net.sourceforge.kolmafia.AdventureResult;
 import net.sourceforge.kolmafia.AdventureResult.AdventureLongCountResult;
 import net.sourceforge.kolmafia.KoLCharacter;
 import net.sourceforge.kolmafia.KoLConstants;
-import net.sourceforge.kolmafia.KoLConstants.ConsumptionType;
 import net.sourceforge.kolmafia.KoLConstants.CraftingType;
 import net.sourceforge.kolmafia.KoLConstants.MafiaState;
 import net.sourceforge.kolmafia.KoLmafia;
@@ -16,6 +15,7 @@ import net.sourceforge.kolmafia.RequestThread;
 import net.sourceforge.kolmafia.objectpool.EffectPool;
 import net.sourceforge.kolmafia.objectpool.ItemPool;
 import net.sourceforge.kolmafia.objectpool.SkillPool;
+import net.sourceforge.kolmafia.objecttypes.ItemType;
 import net.sourceforge.kolmafia.persistence.ConcoctionDatabase;
 import net.sourceforge.kolmafia.persistence.ConsumablesDatabase;
 import net.sourceforge.kolmafia.persistence.HolidayDatabase;
@@ -209,7 +209,7 @@ public class EatItemRequest extends UseItemRequest {
     String name = this.itemUsed.getName();
     int itemId = this.itemUsed.getItemId();
 
-    if (this.consumptionType == ConsumptionType.FOOD_HELPER) {
+    if (this.itemType == ItemType.FOOD_HELPER) {
       if (!InventoryManager.retrieveItem(this.itemUsed)) {
         KoLmafia.updateDisplay(MafiaState.ERROR, "Helper not available.");
         return;
@@ -236,7 +236,7 @@ public class EatItemRequest extends UseItemRequest {
 
     UseItemRequest.lastUpdate = "";
 
-    int maximumUses = UseItemRequest.maximumUses(itemId, this.consumptionType);
+    int maximumUses = UseItemRequest.maximumUses(itemId, this.itemType);
     if (maximumUses < count) {
       KoLmafia.updateDisplay(
           "(usable quantity of "
@@ -265,7 +265,7 @@ public class EatItemRequest extends UseItemRequest {
     // Don't get Mayoflex if the food does not give adventures
     String minderSetting = Preferences.getString("mayoMinderSetting");
     AdventureResult workshedItem = CampgroundRequest.getCurrentWorkshedItem();
-    if (consumptionType == ConsumptionType.EAT
+    if (itemType == ItemType.EAT
         && !ConcoctionDatabase.isMayo(itemId)
         && !minderSetting.equals("")
         && Preferences.getBoolean("autoFillMayoMinder")
@@ -328,7 +328,7 @@ public class EatItemRequest extends UseItemRequest {
       return;
     }
 
-    if (this.consumptionType == ConsumptionType.USE_MULTIPLE && this.itemUsed.getCount() > 1) {
+    if (this.itemType == ItemType.USE_MULTIPLE && this.itemUsed.getCount() > 1) {
       this.addFormField("action", "useitem");
     }
 
@@ -826,8 +826,8 @@ public class EatItemRequest extends UseItemRequest {
       ResultProcessor.processResult(helper.getNegation());
     }
 
-    ConsumptionType consumptionType = UseItemRequest.getConsumptionType(item);
-    if (consumptionType == ConsumptionType.FOOD_HELPER) {
+    ItemType itemType = UseItemRequest.getConsumptionType(item);
+    if (itemType == ItemType.FOOD_HELPER) {
       // Consumption helpers are removed above when you
       // successfully eat or drink.
       return;

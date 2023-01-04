@@ -9,7 +9,6 @@ import net.sourceforge.kolmafia.FamiliarData;
 import net.sourceforge.kolmafia.KoLAdventure;
 import net.sourceforge.kolmafia.KoLCharacter;
 import net.sourceforge.kolmafia.KoLConstants;
-import net.sourceforge.kolmafia.KoLConstants.ConsumptionType;
 import net.sourceforge.kolmafia.KoLConstants.MafiaState;
 import net.sourceforge.kolmafia.KoLConstants.Stat;
 import net.sourceforge.kolmafia.KoLConstants.WeaponType;
@@ -25,6 +24,7 @@ import net.sourceforge.kolmafia.objectpool.FamiliarPool;
 import net.sourceforge.kolmafia.objectpool.ItemPool;
 import net.sourceforge.kolmafia.objectpool.OutfitPool;
 import net.sourceforge.kolmafia.objectpool.SkillPool;
+import net.sourceforge.kolmafia.objecttypes.ItemType;
 import net.sourceforge.kolmafia.persistence.ConcoctionDatabase;
 import net.sourceforge.kolmafia.persistence.EquipmentDatabase;
 import net.sourceforge.kolmafia.persistence.ItemDatabase;
@@ -216,7 +216,7 @@ public class EquipmentManager {
     if (KoLCharacter.getFamiliar().canEquip(item)) {
       AdventureResult.addResultToList(
           EquipmentManager.equipmentLists.get(EquipmentManager.FAMILIAR), item);
-      if (ItemDatabase.getConsumptionType(itemId) == ConsumptionType.FAMILIAR_EQUIPMENT) {
+      if (ItemDatabase.getConsumptionType(itemId) == ItemType.FAMILIAR_EQUIPMENT) {
         return;
       }
       // Even though the familiar can use it, it's not a
@@ -228,10 +228,10 @@ public class EquipmentManager {
       return;
     }
 
-    ConsumptionType consumeType = ItemDatabase.getConsumptionType(itemId);
-    if (consumeType == ConsumptionType.ACCESSORY) {
+    ItemType consumeType = ItemDatabase.getConsumptionType(itemId);
+    if (consumeType == ItemType.ACCESSORY) {
       AdventureResult.addResultToList(EquipmentManager.accessories, item);
-    } else if (consumeType == ConsumptionType.STICKER) {
+    } else if (consumeType == ItemType.STICKER) {
       // The stickers cannot be combined into a single list, as is done with
       // accessories, since stickers cannot be moved to a different slot.  If a
       // slot contains your last sticker of a particular type, then that type must
@@ -250,7 +250,7 @@ public class EquipmentManager {
           EquipmentManager.equipmentLists.get(slot).add(current);
         }
       }
-    } else if (consumeType == ConsumptionType.FOLDER) {
+    } else if (consumeType == ItemType.FOLDER) {
       // Folders are similar to stickers
 
       for (int slot : EquipmentManager.FOLDER_SLOTS) {
@@ -364,7 +364,7 @@ public class EquipmentManager {
 
     // Remove skill first if item being removed had one
     if (old.getItemId() != item.getItemId()) {
-      ConsumptionType consumption = ItemDatabase.getConsumptionType(old);
+      ItemType consumption = ItemDatabase.getConsumptionType(old);
       boolean removed = true;
       // Some items could be in multiple slots
       switch (slot) {
@@ -1405,7 +1405,7 @@ public class EquipmentManager {
     AdventureResult offhand = EquipmentManager.equipment.get(EquipmentManager.OFFHAND);
 
     return !mainhand.equals(EquipmentRequest.UNEQUIP)
-        && ItemDatabase.getConsumptionType(offhand) == ConsumptionType.WEAPON;
+        && ItemDatabase.getConsumptionType(offhand) == ItemType.WEAPON;
   }
 
   /**
@@ -1577,8 +1577,8 @@ public class EquipmentManager {
   }
 
   public static final void updateEquipmentList(final int listIndex) {
-    ConsumptionType consumeFilter = EquipmentManager.equipmentTypeToConsumeFilter(listIndex);
-    if (consumeFilter == ConsumptionType.UNKNOWN) {
+    ItemType consumeFilter = EquipmentManager.equipmentTypeToConsumeFilter(listIndex);
+    if (consumeFilter == ItemType.UNKNOWN) {
       return;
     }
 
@@ -1643,7 +1643,7 @@ public class EquipmentManager {
   }
 
   private static void updateEquipmentList(
-      final ConsumptionType filterId, final List<AdventureResult> currentList) {
+      final ItemType filterId, final List<AdventureResult> currentList) {
     ArrayList<AdventureResult> temporary = new ArrayList<>();
     temporary.add(EquipmentRequest.UNEQUIP);
 
@@ -1660,12 +1660,12 @@ public class EquipmentManager {
       String currentItemName = currentItem.getName();
 
       int itemId = currentItem.getItemId();
-      ConsumptionType type = ItemDatabase.getConsumptionType(itemId);
+      ItemType type = ItemDatabase.getConsumptionType(itemId);
 
       // If we want off-hand items and we can dual wield,
       // allow one-handed weapons of same type
 
-      if (filterId == ConsumptionType.OFFHAND && type == ConsumptionType.WEAPON && dual) {
+      if (filterId == ItemType.OFFHAND && type == ItemType.WEAPON && dual) {
         if (EquipmentDatabase.isMainhandOnly(itemId)
             || EquipmentDatabase.getWeaponType(itemId) != weaponType) {
           continue;
@@ -1675,7 +1675,7 @@ public class EquipmentManager {
       // If we are equipping familiar items, make sure
       // current familiar can use this one
 
-      else if (filterId == ConsumptionType.FAMILIAR_EQUIPMENT) {
+      else if (filterId == ItemType.FAMILIAR_EQUIPMENT) {
         if (currentFamiliar.canEquip(currentItem)) {
           temporary.add(currentItem.getInstance(1));
         }
@@ -1687,7 +1687,7 @@ public class EquipmentManager {
 
       else if (filterId != type) {
         continue;
-      } else if (filterId == ConsumptionType.WEAPON && dual) {
+      } else if (filterId == ItemType.WEAPON && dual) {
         if (EquipmentDatabase.getHands(itemId) == 1
             && EquipmentDatabase.getWeaponType(itemId) != weaponType) {
           continue;
@@ -1768,35 +1768,35 @@ public class EquipmentManager {
     EquipmentManager.updateNormalOutfits();
   }
 
-  public static final ConsumptionType equipmentTypeToConsumeFilter(final int equipmentType) {
+  public static final ItemType equipmentTypeToConsumeFilter(final int equipmentType) {
     return switch (equipmentType) {
-      case EquipmentManager.HAT -> ConsumptionType.HAT;
-      case EquipmentManager.WEAPON -> ConsumptionType.WEAPON;
-      case EquipmentManager.OFFHAND -> ConsumptionType.OFFHAND;
-      case EquipmentManager.SHIRT -> ConsumptionType.SHIRT;
-      case EquipmentManager.PANTS -> ConsumptionType.PANTS;
-      case EquipmentManager.CONTAINER -> ConsumptionType.CONTAINER;
+      case EquipmentManager.HAT -> ItemType.HAT;
+      case EquipmentManager.WEAPON -> ItemType.WEAPON;
+      case EquipmentManager.OFFHAND -> ItemType.OFFHAND;
+      case EquipmentManager.SHIRT -> ItemType.SHIRT;
+      case EquipmentManager.PANTS -> ItemType.PANTS;
+      case EquipmentManager.CONTAINER -> ItemType.CONTAINER;
       case EquipmentManager.ACCESSORY1,
           EquipmentManager.ACCESSORY2,
-          EquipmentManager.ACCESSORY3 -> ConsumptionType.ACCESSORY;
-      case EquipmentManager.FAMILIAR -> ConsumptionType.FAMILIAR_EQUIPMENT;
+          EquipmentManager.ACCESSORY3 -> ItemType.ACCESSORY;
+      case EquipmentManager.FAMILIAR -> ItemType.FAMILIAR_EQUIPMENT;
       case EquipmentManager.STICKER1,
           EquipmentManager.STICKER2,
-          EquipmentManager.STICKER3 -> ConsumptionType.STICKER;
-      case EquipmentManager.CARDSLEEVE -> ConsumptionType.CARD;
+          EquipmentManager.STICKER3 -> ItemType.STICKER;
+      case EquipmentManager.CARDSLEEVE -> ItemType.CARD;
       case EquipmentManager.FOLDER1,
           EquipmentManager.FOLDER2,
           EquipmentManager.FOLDER3,
           EquipmentManager.FOLDER4,
-          EquipmentManager.FOLDER5 -> ConsumptionType.FOLDER;
-      case EquipmentManager.BOOTSKIN -> ConsumptionType.BOOTSKIN;
-      case EquipmentManager.BOOTSPUR -> ConsumptionType.BOOTSPUR;
-      case EquipmentManager.HOLSTER -> ConsumptionType.SIXGUN;
-      default -> ConsumptionType.UNKNOWN;
+          EquipmentManager.FOLDER5 -> ItemType.FOLDER;
+      case EquipmentManager.BOOTSKIN -> ItemType.BOOTSKIN;
+      case EquipmentManager.BOOTSPUR -> ItemType.BOOTSPUR;
+      case EquipmentManager.HOLSTER -> ItemType.SIXGUN;
+      default -> ItemType.UNKNOWN;
     };
   }
 
-  public static final int consumeFilterToEquipmentType(final ConsumptionType consumeFilter) {
+  public static final int consumeFilterToEquipmentType(final ItemType consumeFilter) {
     return switch (consumeFilter) {
       case HAT -> EquipmentManager.HAT;
       case WEAPON -> EquipmentManager.WEAPON;
@@ -2165,17 +2165,17 @@ public class EquipmentManager {
       return false;
     }
 
-    ConsumptionType type = ItemDatabase.getConsumptionType(itemId);
+    ItemType type = ItemDatabase.getConsumptionType(itemId);
 
-    if (type == ConsumptionType.SIXGUN) {
+    if (type == ItemType.SIXGUN) {
       return KoLCharacter.isAWoLClass();
     }
 
-    if (type == ConsumptionType.SHIRT && !KoLCharacter.isTorsoAware()) {
+    if (type == ItemType.SHIRT && !KoLCharacter.isTorsoAware()) {
       return false;
     }
 
-    if (type == ConsumptionType.FAMILIAR_EQUIPMENT) {
+    if (type == ItemType.FAMILIAR_EQUIPMENT) {
       return KoLCharacter.getFamiliar().canEquip(ItemPool.get(itemId, 1));
     }
 
@@ -2183,13 +2183,11 @@ public class EquipmentManager {
       return false;
     }
 
-    if (KoLCharacter.inFistcore()
-        && (type == ConsumptionType.WEAPON || type == ConsumptionType.OFFHAND)) {
+    if (KoLCharacter.inFistcore() && (type == ItemType.WEAPON || type == ItemType.OFFHAND)) {
       return false;
     }
 
-    if (KoLCharacter.inAxecore()
-        && (type == ConsumptionType.WEAPON || type == ConsumptionType.OFFHAND)) {
+    if (KoLCharacter.inAxecore() && (type == ItemType.WEAPON || type == ItemType.OFFHAND)) {
       return itemId == ItemPool.TRUSTY;
     }
 

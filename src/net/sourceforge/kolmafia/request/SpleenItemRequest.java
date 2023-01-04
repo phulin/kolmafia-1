@@ -3,11 +3,11 @@ package net.sourceforge.kolmafia.request;
 import java.util.EnumSet;
 import net.sourceforge.kolmafia.AdventureResult;
 import net.sourceforge.kolmafia.KoLCharacter;
-import net.sourceforge.kolmafia.KoLConstants.ConsumptionType;
 import net.sourceforge.kolmafia.KoLConstants.MafiaState;
 import net.sourceforge.kolmafia.KoLmafia;
 import net.sourceforge.kolmafia.RequestLogger;
 import net.sourceforge.kolmafia.objectpool.ItemPool;
+import net.sourceforge.kolmafia.objecttypes.ItemType;
 import net.sourceforge.kolmafia.persistence.AdventureSpentDatabase;
 import net.sourceforge.kolmafia.persistence.ConcoctionDatabase;
 import net.sourceforge.kolmafia.persistence.ConsumablesDatabase;
@@ -92,7 +92,7 @@ public class SpleenItemRequest extends UseItemRequest {
     int itemId = this.itemUsed.getItemId();
     UseItemRequest.lastUpdate = "";
 
-    int maximumUses = UseItemRequest.maximumUses(itemId, this.consumptionType);
+    int maximumUses = UseItemRequest.maximumUses(itemId, this.itemType);
     if (maximumUses < this.itemUsed.getCount()) {
       KoLmafia.updateDisplay(
           "(usable quantity of "
@@ -154,7 +154,7 @@ public class SpleenItemRequest extends UseItemRequest {
   }
 
   private boolean singleConsume() {
-    return this.consumptionType == ConsumptionType.USE;
+    return this.itemType == ItemType.USE;
   }
 
   private boolean allowSpleenConsumption() {

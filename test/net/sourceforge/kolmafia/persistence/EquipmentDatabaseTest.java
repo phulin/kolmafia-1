@@ -3,8 +3,7 @@ package net.sourceforge.kolmafia.persistence;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.File;
-import net.sourceforge.kolmafia.KoLConstants;
-import net.sourceforge.kolmafia.KoLConstants.ConsumptionType;
+import net.sourceforge.kolmafia.objecttypes.ItemType;
 import org.junit.jupiter.api.Test;
 
 public class EquipmentDatabaseTest {
@@ -26,16 +25,16 @@ public class EquipmentDatabaseTest {
 
   @Test
   public void itShouldKnowWhatIsEquipment() {
-    assertTrue(KoLConstants.isEquipmentType(ConsumptionType.ACCESSORY, false));
-    assertTrue(KoLConstants.isEquipmentType(ConsumptionType.CONTAINER, false));
-    assertTrue(KoLConstants.isEquipmentType(ConsumptionType.HAT, false));
-    assertTrue(KoLConstants.isEquipmentType(ConsumptionType.OFFHAND, false));
-    assertTrue(KoLConstants.isEquipmentType(ConsumptionType.PANTS, false));
-    assertTrue(KoLConstants.isEquipmentType(ConsumptionType.SHIRT, false));
-    assertTrue(KoLConstants.isEquipmentType(ConsumptionType.WEAPON, false));
-    assertTrue(KoLConstants.isEquipmentType(ConsumptionType.FAMILIAR_EQUIPMENT, true));
-    assertFalse(KoLConstants.isEquipmentType(ConsumptionType.FAMILIAR_EQUIPMENT, false));
-    assertFalse(KoLConstants.isEquipmentType(ConsumptionType.UNKNOWN, false));
+    assertTrue(ItemType.ACCESSORY.isEquipmentType(false));
+    assertTrue(ItemType.CONTAINER.isEquipmentType(false));
+    assertTrue(ItemType.HAT.isEquipmentType(false));
+    assertTrue(ItemType.OFFHAND.isEquipmentType(false));
+    assertTrue(ItemType.PANTS.isEquipmentType(false));
+    assertTrue(ItemType.SHIRT.isEquipmentType(false));
+    assertTrue(ItemType.WEAPON.isEquipmentType(false));
+    assertTrue(ItemType.FAMILIAR_EQUIPMENT.isEquipmentType(true));
+    assertFalse(ItemType.FAMILIAR_EQUIPMENT.isEquipmentType(false));
+    assertFalse(ItemType.UNKNOWN.isEquipmentType(false));
   }
 
   @Test

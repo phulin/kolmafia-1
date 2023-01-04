@@ -13,11 +13,11 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.SwingConstants;
 import net.java.dev.spellcast.utilities.JComponentUtilities;
-import net.sourceforge.kolmafia.KoLConstants.ConsumptionType;
 import net.sourceforge.kolmafia.objectpool.EffectPool;
 import net.sourceforge.kolmafia.objectpool.FamiliarPool;
 import net.sourceforge.kolmafia.objectpool.ItemPool;
 import net.sourceforge.kolmafia.objectpool.SkillPool;
+import net.sourceforge.kolmafia.objecttypes.ItemType;
 import net.sourceforge.kolmafia.persistence.EquipmentDatabase;
 import net.sourceforge.kolmafia.persistence.FamiliarDatabase;
 import net.sourceforge.kolmafia.persistence.ItemDatabase;
@@ -1301,8 +1301,7 @@ public class FamiliarData implements Comparable<FamiliarData> {
 
       case FamiliarPool.HATRACK:
         // Hatrack can wear Hats as well as familiar items, but not Crown of Thrones
-        if (itemId != ItemPool.HATSEAT
-            && ItemDatabase.getConsumptionType(itemId) == ConsumptionType.HAT) {
+        if (itemId != ItemPool.HATSEAT && ItemDatabase.getConsumptionType(itemId) == ItemType.HAT) {
           return true;
         }
         break;
@@ -1317,14 +1316,14 @@ public class FamiliarData implements Comparable<FamiliarData> {
 
       case FamiliarPool.LEFT_HAND:
         // Left-Hand Man can wear Offhand items as well as familiar items
-        if (ItemDatabase.getConsumptionType(itemId) == ConsumptionType.OFFHAND) {
+        if (ItemDatabase.getConsumptionType(itemId) == ItemType.OFFHAND) {
           return true;
         }
         break;
 
       case FamiliarPool.SCARECROW:
         // Scarecrow can wear Pants as well as familiar items
-        if (ItemDatabase.getConsumptionType(itemId) == ConsumptionType.PANTS) {
+        if (ItemDatabase.getConsumptionType(itemId) == ItemType.PANTS) {
           return true;
         }
         break;
@@ -1361,13 +1360,13 @@ public class FamiliarData implements Comparable<FamiliarData> {
     return false;
   }
 
-  public ConsumptionType specialEquipmentType() {
+  public ItemType specialEquipmentType() {
     return switch (this.id) {
-      case FamiliarPool.HATRACK -> ConsumptionType.HAT;
-      case FamiliarPool.HAND -> ConsumptionType.WEAPON;
-      case FamiliarPool.LEFT_HAND -> ConsumptionType.OFFHAND;
-      case FamiliarPool.SCARECROW -> ConsumptionType.PANTS;
-      default -> ConsumptionType.NONE;
+      case FamiliarPool.HATRACK -> ItemType.HAT;
+      case FamiliarPool.HAND -> ItemType.WEAPON;
+      case FamiliarPool.LEFT_HAND -> ItemType.OFFHAND;
+      case FamiliarPool.SCARECROW -> ItemType.PANTS;
+      default -> ItemType.NONE;
     };
   }
 

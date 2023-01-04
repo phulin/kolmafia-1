@@ -1,7 +1,5 @@
 package net.sourceforge.kolmafia;
 
-import static net.sourceforge.kolmafia.KoLConstants.ConsumptionType.FAMILIAR_EQUIPMENT;
-
 import java.awt.Color;
 import java.io.File;
 import java.text.DecimalFormat;
@@ -9,13 +7,10 @@ import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -267,20 +262,6 @@ public interface KoLConstants extends UtilityConstants {
     VOLCANOMAZE_JS,
   };
 
-  /**
-   * Returns true if a given consumption type relates to equipment
-   *
-   * @param type Consumption type constant
-   * @return True if the type relates to equipment
-   */
-  static boolean isEquipmentType(
-      final ConsumptionType type, final boolean includeFamiliarEquipment) {
-    return switch (type) {
-      case ACCESSORY, CONTAINER, HAT, SHIRT, PANTS, WEAPON, OFFHAND -> true;
-      default -> includeFamiliarEquipment && type == FAMILIAR_EQUIPMENT;
-    };
-  }
-
   // Different states of KoLmafia.  Used in order to determine
   // what is still permitted.
   enum MafiaState {
@@ -348,96 +329,6 @@ public interface KoLConstants extends UtilityConstants {
     FOOD,
     SPLEEN,
     OTHER
-  }
-
-  /**
-   * Ways to use items.
-   *
-   * <p>A conflation of a few concepts. Most are "primary uses" as appear in items.txt
-   *
-   * <p>Primary uses determine how you can interact with an item. Some items are "usable" in
-   * addition to their primary use (for example, the fortune cookie or glitch season reward).
-   *
-   * <p>ConsumptionType is also used for how the user /intends/ to interact with an item. This is
-   * what the "Familiar 'uses'" are used for: when the user uses a command specifically for feeding
-   * a familiar.
-   *
-   * <p>Most of this is handled in UseItemRequest.
-   */
-  enum ConsumptionType {
-    UNKNOWN("unknown"),
-    // Cannot be "used" in any way by itself
-    NONE("none"),
-
-    // Consumables
-    EAT("food"),
-    DRINK("drink"),
-    SPLEEN("spleen"),
-
-    // Usables
-    USE("usable"),
-    USE_MULTIPLE("multiple"),
-    USE_INFINITE("reusable"),
-    USE_MESSAGE_DISPLAY("message"),
-
-    // Familiar hatchlings
-    FAMILIAR_HATCHLING("grow"),
-
-    // Equipment
-    HAT("hat"),
-    WEAPON("weapon"),
-    OFFHAND("offhand"),
-    CONTAINER("container"),
-    SHIRT("shirt"),
-    PANTS("pants"),
-    ACCESSORY("accessory"),
-    FAMILIAR_EQUIPMENT("familiar"),
-
-    // Customizable "equipment"
-    STICKER("sticker"),
-    CARD("card"),
-    FOLDER("folder"),
-    BOOTSKIN("bootskin"),
-    BOOTSPUR("bootspur"),
-    SIXGUN("sixgun"),
-
-    // Special "uses"
-    FOOD_HELPER("food helper"),
-    DRINK_HELPER("drink helper"),
-    ZAP("zap"),
-    EL_VIBRATO_SPHERE("sphere"),
-    PASTA_GUARDIAN("guardian"),
-    POKEPILL("pokepill"),
-
-    // Potions
-    POTION("potion"),
-    AVATAR_POTION("avatar"),
-
-    // Familiar "uses"
-    ROBORTENDER("robortender"),
-    STOCKING_MIMIC("stocking mimic"),
-    SLIMELING("slimeling"),
-    SPIRIT_HOBO("spirit hobo"),
-    GLUTTONOUS_GHOST("gluttonous ghost");
-
-    public final String description;
-    private static final Map<String, ConsumptionType> consumptionTypeByDescription =
-        new HashMap<>();
-
-    ConsumptionType(String description) {
-      this.description = description;
-    }
-
-    public static ConsumptionType byDescription(String description) {
-      var lookup = consumptionTypeByDescription.get(description);
-      if (lookup != null) return lookup;
-      var search =
-          Arrays.stream(ConsumptionType.values())
-              .filter(x -> x.description.equals(description))
-              .findAny();
-      search.ifPresent(x -> consumptionTypeByDescription.put(description, x));
-      return search.orElse(null);
-    }
   }
 
   enum CraftingType {

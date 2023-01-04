@@ -14,7 +14,6 @@ import java.util.stream.IntStream;
 import net.java.dev.spellcast.utilities.LockableListModel;
 import net.java.dev.spellcast.utilities.SortedListModel;
 import net.sourceforge.kolmafia.AscensionPath.Path;
-import net.sourceforge.kolmafia.KoLConstants.ConsumptionType;
 import net.sourceforge.kolmafia.KoLConstants.Stat;
 import net.sourceforge.kolmafia.KoLConstants.WeaponType;
 import net.sourceforge.kolmafia.KoLConstants.ZodiacType;
@@ -30,6 +29,7 @@ import net.sourceforge.kolmafia.objectpool.FamiliarPool;
 import net.sourceforge.kolmafia.objectpool.ItemPool;
 import net.sourceforge.kolmafia.objectpool.OutfitPool;
 import net.sourceforge.kolmafia.objectpool.SkillPool;
+import net.sourceforge.kolmafia.objecttypes.ItemType;
 import net.sourceforge.kolmafia.persistence.*;
 import net.sourceforge.kolmafia.persistence.MonsterDatabase.Element;
 import net.sourceforge.kolmafia.persistence.QuestDatabase.Quest;
@@ -5431,10 +5431,10 @@ public abstract class KoLCharacter {
     }
 
     int itemId = item.getItemId();
-    ConsumptionType consume = ItemDatabase.getConsumptionType(itemId);
+    ItemType consume = ItemDatabase.getConsumptionType(itemId);
 
     if (slot == EquipmentManager.FAMILIAR
-        && (consume == ConsumptionType.HAT || consume == ConsumptionType.PANTS)) {
+        && (consume == ItemType.HAT || consume == ItemType.PANTS)) {
       // Hatrack hats don't get their normal enchantments
       // Scarecrow pants don't get their normal enchantments
       return;
@@ -5443,10 +5443,10 @@ public abstract class KoLCharacter {
     Modifiers imod;
 
     if (slot == EquipmentManager.FAMILIAR
-        && (consume == ConsumptionType.WEAPON || consume == ConsumptionType.OFFHAND)) {
+        && (consume == ItemType.WEAPON || consume == ItemType.OFFHAND)) {
       imod = Modifiers.getItemModifiersInFamiliarSlot(itemId);
 
-      if (consume == ConsumptionType.WEAPON) {
+      if (consume == ItemType.WEAPON) {
         newModifiers.add(
             Modifiers.WEAPON_DAMAGE,
             EquipmentDatabase.getPower(itemId) * 0.15f,
@@ -5545,7 +5545,7 @@ public abstract class KoLCharacter {
     // Add modifiers that depend on equipment power
     switch (slot) {
       case EquipmentManager.OFFHAND:
-        if (consume != ConsumptionType.WEAPON) {
+        if (consume != ItemType.WEAPON) {
           break;
         }
         /*FALLTHRU*/

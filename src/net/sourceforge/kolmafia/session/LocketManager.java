@@ -9,11 +9,11 @@ import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import net.sourceforge.kolmafia.KoLCharacter;
-import net.sourceforge.kolmafia.KoLConstants.ConsumptionType;
 import net.sourceforge.kolmafia.Modifiers;
 import net.sourceforge.kolmafia.MonsterData;
 import net.sourceforge.kolmafia.RequestThread;
 import net.sourceforge.kolmafia.objectpool.ItemPool;
+import net.sourceforge.kolmafia.objecttypes.ItemType;
 import net.sourceforge.kolmafia.persistence.DebugDatabase;
 import net.sourceforge.kolmafia.preferences.Preferences;
 import net.sourceforge.kolmafia.request.LocketRequest;
@@ -105,8 +105,7 @@ public class LocketManager {
     var mods = new Modifiers.ModifierList();
 
     // The plan here is to parse the locket description...
-    DebugDatabase.parseItemEnchantments(
-        responseText, mods, new ArrayList<>(), ConsumptionType.ACCESSORY);
+    DebugDatabase.parseItemEnchantments(responseText, mods, new ArrayList<>(), ItemType.ACCESSORY);
 
     // ...find the first modifier that can indicate the phylum...
     var indicativeMod =

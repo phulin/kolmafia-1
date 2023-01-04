@@ -6,7 +6,6 @@ import net.sourceforge.kolmafia.AdventureResult;
 import net.sourceforge.kolmafia.FamiliarData;
 import net.sourceforge.kolmafia.KoLCharacter;
 import net.sourceforge.kolmafia.KoLConstants;
-import net.sourceforge.kolmafia.KoLConstants.ConsumptionType;
 import net.sourceforge.kolmafia.KoLConstants.CraftingType;
 import net.sourceforge.kolmafia.KoLConstants.MafiaState;
 import net.sourceforge.kolmafia.KoLmafia;
@@ -15,6 +14,7 @@ import net.sourceforge.kolmafia.RequestThread;
 import net.sourceforge.kolmafia.objectpool.FamiliarPool;
 import net.sourceforge.kolmafia.objectpool.ItemPool;
 import net.sourceforge.kolmafia.objectpool.SkillPool;
+import net.sourceforge.kolmafia.objecttypes.ItemType;
 import net.sourceforge.kolmafia.persistence.ConcoctionDatabase;
 import net.sourceforge.kolmafia.persistence.ConsumablesDatabase;
 import net.sourceforge.kolmafia.persistence.ItemDatabase;
@@ -209,7 +209,7 @@ public class DrinkItemRequest extends UseItemRequest {
       return;
     }
 
-    if (this.consumptionType == ConsumptionType.DRINK_HELPER) {
+    if (this.itemType == ItemType.DRINK_HELPER) {
       int count = this.itemUsed.getCount();
 
       if (!InventoryManager.retrieveItem(this.itemUsed)) {
@@ -244,7 +244,7 @@ public class DrinkItemRequest extends UseItemRequest {
     int itemId = this.itemUsed.getItemId();
     UseItemRequest.lastUpdate = "";
 
-    int maximumUses = UseItemRequest.maximumUses(itemId, this.consumptionType);
+    int maximumUses = UseItemRequest.maximumUses(itemId, this.itemType);
     if (maximumUses < this.itemUsed.getCount()) {
       KoLmafia.updateDisplay(
           "(usable quantity of "
@@ -744,13 +744,13 @@ public class DrinkItemRequest extends UseItemRequest {
       ResultProcessor.processResult(helper.getNegation());
     }
 
-    ConsumptionType consumptionType = UseItemRequest.getConsumptionType(item);
+    ItemType itemType = UseItemRequest.getConsumptionType(item);
 
     // Assume initially that this causes the item to disappear.
     // In the event that the item is not used, then proceed to
     // undo the consumption.
 
-    if (consumptionType == ConsumptionType.DRINK_HELPER) {
+    if (itemType == ItemType.DRINK_HELPER) {
       // Consumption helpers are removed above when you
       // successfully eat or drink.
       return;

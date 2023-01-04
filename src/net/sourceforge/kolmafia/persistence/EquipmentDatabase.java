@@ -17,7 +17,6 @@ import java.util.regex.Pattern;
 import net.sourceforge.kolmafia.AdventureResult;
 import net.sourceforge.kolmafia.KoLAdventure;
 import net.sourceforge.kolmafia.KoLConstants;
-import net.sourceforge.kolmafia.KoLConstants.ConsumptionType;
 import net.sourceforge.kolmafia.KoLConstants.Stat;
 import net.sourceforge.kolmafia.KoLConstants.WeaponType;
 import net.sourceforge.kolmafia.Modifiers;
@@ -28,6 +27,7 @@ import net.sourceforge.kolmafia.objectpool.AdventurePool;
 import net.sourceforge.kolmafia.objectpool.EffectPool;
 import net.sourceforge.kolmafia.objectpool.ItemPool;
 import net.sourceforge.kolmafia.objectpool.OutfitPool;
+import net.sourceforge.kolmafia.objecttypes.ItemType;
 import net.sourceforge.kolmafia.preferences.Preferences;
 import net.sourceforge.kolmafia.session.EquipmentManager;
 import net.sourceforge.kolmafia.utilities.FileUtilities;
@@ -249,7 +249,7 @@ public class EquipmentDatabase {
       Entry<Integer, String> entry = it.next();
       Integer key = entry.getKey();
       String name = entry.getValue();
-      ConsumptionType type = ItemDatabase.getConsumptionType(key.intValue());
+      ItemType type = ItemDatabase.getConsumptionType(key.intValue());
 
       switch (type) {
         case HAT -> hats.put(name, key);
@@ -296,8 +296,8 @@ public class EquipmentDatabase {
       int itemId = val.intValue();
       int power = EquipmentDatabase.getPower(itemId);
       String req = EquipmentDatabase.getEquipRequirement(itemId);
-      ConsumptionType usage = ItemDatabase.getConsumptionType(itemId);
-      boolean isWeapon = usage == ConsumptionType.WEAPON;
+      ItemType usage = ItemDatabase.getConsumptionType(itemId);
+      boolean isWeapon = usage == ItemType.WEAPON;
       String type = EquipmentDatabase.itemTypes.get(itemId);
       boolean isShield = type != null && type.equals("shield");
       String weaponType = "";
@@ -453,8 +453,8 @@ public class EquipmentDatabase {
     while (++prevId <= limit) {
       String req = EquipmentDatabase.statRequirements.get(prevId);
       if ((req != null && req.length() > 0)
-          || ItemDatabase.getConsumptionType(prevId) == ConsumptionType.FAMILIAR_EQUIPMENT
-          || ItemDatabase.getConsumptionType(prevId) == ConsumptionType.SIXGUN) {
+          || ItemDatabase.getConsumptionType(prevId) == ItemType.FAMILIAR_EQUIPMENT
+          || ItemDatabase.getConsumptionType(prevId) == ItemType.SIXGUN) {
         return prevId;
       }
     }
@@ -587,9 +587,9 @@ public class EquipmentDatabase {
   }
 
   public static final Stat getWeaponStat(final int itemId) {
-    ConsumptionType consumptionType = ItemDatabase.getConsumptionType(itemId);
+    ItemType itemType = ItemDatabase.getConsumptionType(itemId);
 
-    if (consumptionType != ConsumptionType.WEAPON) {
+    if (itemType != ItemType.WEAPON) {
       return Stat.NONE;
     }
 
@@ -676,11 +676,11 @@ public class EquipmentDatabase {
   }
 
   public static final boolean isShirt(final AdventureResult item) {
-    return ItemDatabase.getConsumptionType(item.getItemId()) == ConsumptionType.SHIRT;
+    return ItemDatabase.getConsumptionType(item.getItemId()) == ItemType.SHIRT;
   }
 
   public static final boolean isContainer(final AdventureResult item) {
-    return ItemDatabase.getConsumptionType(item.getItemId()) == ConsumptionType.CONTAINER;
+    return ItemDatabase.getConsumptionType(item.getItemId()) == ItemType.CONTAINER;
   }
 
   public static final boolean isMainhandOnly(final AdventureResult item) {

@@ -18,7 +18,6 @@ import net.sourceforge.kolmafia.AscensionClass;
 import net.sourceforge.kolmafia.AscensionPath.Path;
 import net.sourceforge.kolmafia.FamiliarData;
 import net.sourceforge.kolmafia.KoLCharacter;
-import net.sourceforge.kolmafia.KoLConstants.ConsumptionType;
 import net.sourceforge.kolmafia.RequestLogger;
 import net.sourceforge.kolmafia.listener.Listener;
 import net.sourceforge.kolmafia.listener.NamedListenerRegistry;
@@ -26,6 +25,7 @@ import net.sourceforge.kolmafia.objectpool.ConcoctionType;
 import net.sourceforge.kolmafia.objectpool.FamiliarPool;
 import net.sourceforge.kolmafia.objectpool.ItemPool;
 import net.sourceforge.kolmafia.objectpool.SkillPool;
+import net.sourceforge.kolmafia.objecttypes.ItemType;
 import net.sourceforge.kolmafia.preferences.Preferences;
 import net.sourceforge.kolmafia.request.CharPaneRequest;
 import net.sourceforge.kolmafia.request.CharSheetRequest;
@@ -104,17 +104,17 @@ public class YouRobotManagerTest {
 
     // We start with no upgrades, neither body parts nor CPU enhancements.
 
-    assertFalse(YouRobotManager.canEquip(ConsumptionType.HAT));
-    assertFalse(YouRobotManager.canEquip(ConsumptionType.WEAPON));
-    assertFalse(YouRobotManager.canEquip(ConsumptionType.OFFHAND));
-    assertFalse(YouRobotManager.canEquip(ConsumptionType.SHIRT));
-    assertFalse(YouRobotManager.canEquip(ConsumptionType.PANTS));
+    assertFalse(YouRobotManager.canEquip(ItemType.HAT));
+    assertFalse(YouRobotManager.canEquip(ItemType.WEAPON));
+    assertFalse(YouRobotManager.canEquip(ItemType.OFFHAND));
+    assertFalse(YouRobotManager.canEquip(ItemType.SHIRT));
+    assertFalse(YouRobotManager.canEquip(ItemType.PANTS));
 
     // For historical reasons, "back items" are "containers"
-    assertTrue(YouRobotManager.canEquip(ConsumptionType.CONTAINER));
-    assertTrue(YouRobotManager.canEquip(ConsumptionType.ACCESSORY));
+    assertTrue(YouRobotManager.canEquip(ItemType.CONTAINER));
+    assertTrue(YouRobotManager.canEquip(ItemType.ACCESSORY));
     // Probably only if you have an active familiar, but that's not our call to enforce
-    assertTrue(YouRobotManager.canEquip(ConsumptionType.FAMILIAR_EQUIPMENT));
+    assertTrue(YouRobotManager.canEquip(ItemType.FAMILIAR_EQUIPMENT));
 
     // Install a Pea Shooter as your Top Attachment.
     assertFalse(KoLCharacter.hasCombatSkill(SkillPool.SHOOT_PEA));
@@ -128,30 +128,30 @@ public class YouRobotManagerTest {
     assertTrue(YouRobotManager.canUseFamiliars());
 
     // Install a Mannequin Head as your Top Attachment.
-    assertFalse(YouRobotManager.canEquip(ConsumptionType.HAT));
+    assertFalse(YouRobotManager.canEquip(ItemType.HAT));
     YouRobotManager.testInstallUpgrade(RobotUpgrade.MANNEQUIN_HEAD);
-    assertTrue(YouRobotManager.canEquip(ConsumptionType.HAT));
+    assertTrue(YouRobotManager.canEquip(ItemType.HAT));
 
     // Install Vice Grips as your Left Hand
-    assertFalse(YouRobotManager.canEquip(ConsumptionType.WEAPON));
+    assertFalse(YouRobotManager.canEquip(ItemType.WEAPON));
     YouRobotManager.testInstallUpgrade(RobotUpgrade.VICE_GRIPS);
-    assertTrue(YouRobotManager.canEquip(ConsumptionType.WEAPON));
+    assertTrue(YouRobotManager.canEquip(ItemType.WEAPON));
 
     // Install Omni Claw as your Right Hand
-    assertFalse(YouRobotManager.canEquip(ConsumptionType.OFFHAND));
+    assertFalse(YouRobotManager.canEquip(ItemType.OFFHAND));
     YouRobotManager.testInstallUpgrade(RobotUpgrade.OMNI_CLAW);
-    assertTrue(YouRobotManager.canEquip(ConsumptionType.OFFHAND));
+    assertTrue(YouRobotManager.canEquip(ItemType.OFFHAND));
 
     // Install Robo-Legs as your Propulsion System
-    assertFalse(YouRobotManager.canEquip(ConsumptionType.PANTS));
+    assertFalse(YouRobotManager.canEquip(ItemType.PANTS));
     YouRobotManager.testInstallUpgrade(RobotUpgrade.ROBO_LEGS);
-    assertTrue(YouRobotManager.canEquip(ConsumptionType.PANTS));
+    assertTrue(YouRobotManager.canEquip(ItemType.PANTS));
 
     // Install Topology Grid CPU Upgrade
-    assertFalse(YouRobotManager.canEquip(ConsumptionType.SHIRT));
+    assertFalse(YouRobotManager.canEquip(ItemType.SHIRT));
     assertFalse(KoLCharacter.hasSkill(SkillPool.TORSO));
     YouRobotManager.testInstallUpgrade(RobotUpgrade.TOPOLOGY_GRID);
-    assertTrue(YouRobotManager.canEquip(ConsumptionType.SHIRT));
+    assertTrue(YouRobotManager.canEquip(ItemType.SHIRT));
     assertTrue(KoLCharacter.hasSkill(SkillPool.TORSO));
     KoLCharacter.removeAvailableSkill(SkillPool.TORSO);
 
@@ -287,11 +287,11 @@ public class YouRobotManagerTest {
       verifyAvatarFromProperties();
 
       // Verify that we can't equip any items
-      assertFalse(YouRobotManager.canEquip(ConsumptionType.HAT));
-      assertFalse(YouRobotManager.canEquip(ConsumptionType.WEAPON));
-      assertFalse(YouRobotManager.canEquip(ConsumptionType.OFFHAND));
-      assertFalse(YouRobotManager.canEquip(ConsumptionType.PANTS));
-      assertFalse(YouRobotManager.canEquip(ConsumptionType.SHIRT));
+      assertFalse(YouRobotManager.canEquip(ItemType.HAT));
+      assertFalse(YouRobotManager.canEquip(ItemType.WEAPON));
+      assertFalse(YouRobotManager.canEquip(ItemType.OFFHAND));
+      assertFalse(YouRobotManager.canEquip(ItemType.PANTS));
+      assertFalse(YouRobotManager.canEquip(ItemType.SHIRT));
 
       // Verify that our Pea Shooter is active.
       assertTrue(KoLCharacter.hasCombatSkill(SkillPool.SHOOT_PEA));
