@@ -440,11 +440,6 @@ public class RequestFrame extends GenericFrame {
     super.dispose();
   }
 
-  @Override
-  public boolean shouldAddStatusBar() {
-    return false;
-  }
-
   private class HomeRunnable implements Runnable {
     @Override
     public void run() {

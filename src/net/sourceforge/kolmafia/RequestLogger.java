@@ -14,6 +14,7 @@ import net.sourceforge.kolmafia.session.DvorakManager;
 import net.sourceforge.kolmafia.session.ElVibratoManager;
 import net.sourceforge.kolmafia.session.OceanManager;
 import net.sourceforge.kolmafia.session.SorceressLairManager;
+import net.sourceforge.kolmafia.swingui.CommandDisplayFrame;
 import net.sourceforge.kolmafia.utilities.LogStream;
 import net.sourceforge.kolmafia.utilities.NullStream;
 import net.sourceforge.kolmafia.utilities.StringUtilities;
@@ -75,7 +76,7 @@ public class RequestLogger extends NullStream {
 
     buffer.setLength(0);
     SkillDatabase.generateSkillList(buffer, true);
-    KoLConstants.commandBuffer.append(buffer.toString());
+    CommandDisplayFrame.appendSessionContent(buffer.toString());
   }
 
   public static void printList(final List<?> printing) {
@@ -198,7 +199,7 @@ public class RequestLogger extends NullStream {
     }
 
     colorBuffer.append(KoLConstants.LINE_BREAK);
-    KoLConstants.commandBuffer.append(colorBuffer.toString());
+    CommandDisplayFrame.appendSessionContent(colorBuffer.toString());
     RequestLogger.mirrorStream.println(colorBuffer);
     RelayServer.addStatusMessage(colorBuffer.toString());
   }

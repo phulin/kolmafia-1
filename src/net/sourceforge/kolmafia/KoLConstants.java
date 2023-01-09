@@ -21,7 +21,6 @@ import java.util.Random;
 import java.util.Set;
 import java.util.regex.Pattern;
 import net.java.dev.spellcast.utilities.UtilityConstants;
-import net.sourceforge.kolmafia.chat.StyledChatBuffer;
 import net.sourceforge.kolmafia.request.UseSkillRequest;
 import net.sourceforge.kolmafia.session.EncounterManager.RegisteredEncounter;
 import net.sourceforge.kolmafia.swingui.menu.PartialMRUList;
@@ -686,8 +685,6 @@ public interface KoLConstants extends UtilityConstants {
 
   // Locations where session information is displayed for the user.
   // Include just the event history buffer and the command line buffer.
-
-  StyledChatBuffer commandBuffer = new StyledChatBuffer("", "blue", false);
 
   Comparator<String> ignoreCaseComparator =
       new Comparator<>() {

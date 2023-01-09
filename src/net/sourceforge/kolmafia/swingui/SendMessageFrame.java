@@ -171,11 +171,6 @@ public class SendMessageFrame extends GenericFrame implements ListElementFilter 
     this.messageEntry.setText(text);
   }
 
-  @Override
-  public boolean shouldAddStatusBar() {
-    return true;
-  }
-
   private class AttachmentClearListener implements ActionListener {
     @Override
     public void actionPerformed(final ActionEvent e) {

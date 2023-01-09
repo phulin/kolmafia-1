@@ -69,11 +69,6 @@ public class KoLDesktop extends GenericFrame {
   }
 
   @Override
-  public boolean shouldAddStatusBar() {
-    return false;
-  }
-
-  @Override
   public JTabbedPane getTabbedPane() {
     return Preferences.getBoolean("allowCloseableDesktopTabs")
         ? new CloseableTabbedPane()

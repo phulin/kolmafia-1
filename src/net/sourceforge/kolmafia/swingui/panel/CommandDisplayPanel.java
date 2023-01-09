@@ -8,25 +8,36 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.util.Collections;
+import javafx.application.Platform;
+import javafx.beans.value.ObservableValue;
+import javafx.concurrent.Worker;
+import javafx.embed.swing.JFXPanel;
+import javafx.scene.Group;
+import javafx.scene.Scene;
+import javafx.scene.web.WebEngine;
+import javafx.scene.web.WebView;
 import javax.swing.JButton;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import net.java.dev.spellcast.utilities.JComponentUtilities;
-import net.sourceforge.kolmafia.KoLConstants;
 import net.sourceforge.kolmafia.StaticEntity;
 import net.sourceforge.kolmafia.swingui.CommandDisplayFrame;
 import net.sourceforge.kolmafia.swingui.listener.DefaultComponentFocusTraversalPolicy;
 import net.sourceforge.kolmafia.swingui.listener.HyperlinkAdapter;
-import net.sourceforge.kolmafia.swingui.listener.StickyListener;
 import net.sourceforge.kolmafia.swingui.listener.ThreadedListener;
 import net.sourceforge.kolmafia.swingui.widget.AutoHighlightTextField;
 import net.sourceforge.kolmafia.swingui.widget.RequestPane;
 import net.sourceforge.kolmafia.utilities.RollingLinkedList;
+import netscape.javascript.JSObject;
 
 public class CommandDisplayPanel extends JPanel implements FocusListener {
   private final RollingLinkedList<String> commandHistory = new RollingLinkedList<>(20);
   private final AutoHighlightTextField entryField;
   private final JButton entryButton;
+
+  private static final String STYLE = "body { font-family: sans-serif; padding: 1px; }";
+  private static final String INITIAL_CONTENT =
+      "<html><head><style>" + STYLE + "</style></head><body></body></html>";
+  private WebView webView = null;
+  private JSObject body = null;
 
   private final String preference;
   private final String DELIMITER = "#";
@@ -39,12 +50,6 @@ public class CommandDisplayPanel extends JPanel implements FocusListener {
     RequestPane outputDisplay = new RequestPane();
     outputDisplay.addHyperlinkListener(new HyperlinkAdapter());
 
-    JScrollPane scrollPane = KoLConstants.commandBuffer.addDisplay(outputDisplay);
-    scrollPane
-        .getVerticalScrollBar()
-        .addAdjustmentListener(new StickyListener(KoLConstants.commandBuffer, outputDisplay, 200));
-    JComponentUtilities.setComponentSize(scrollPane, 400, 300);
-
     JPanel entryPanel = new JPanel(new BorderLayout());
     this.entryField = new AutoHighlightTextField();
     this.entryField.addKeyListener(new CommandEntryListener());
@@ -56,7 +61,38 @@ public class CommandDisplayPanel extends JPanel implements FocusListener {
     entryPanel.add(this.entryButton, BorderLayout.EAST);
 
     this.setLayout(new BorderLayout(1, 1));
-    this.add(scrollPane, BorderLayout.CENTER);
+
+    JFXPanel jfxPanel = new JFXPanel();
+    jfxPanel.setSize(400, 300);
+
+    Platform.runLater(
+        () -> {
+          this.webView = new WebView();
+          WebEngine engine = this.webView.getEngine();
+          engine.loadContent(CommandDisplayPanel.INITIAL_CONTENT, "text/html");
+          webView
+              .getEngine()
+              .getLoadWorker()
+              .stateProperty()
+              .addListener(
+                  (ObservableValue<? extends Worker.State> observable,
+                      Worker.State oldValue,
+                      Worker.State newValue) -> {
+                    if (newValue != Worker.State.SUCCEEDED) {
+                      return;
+                    }
+
+                    this.body = (JSObject) this.webView.getEngine().executeScript("document.body");
+                  });
+
+          Group root = new Group();
+          Scene scene = new Scene(root);
+          root.getChildren().add(this.webView);
+          jfxPanel.setScene(scene);
+        });
+
+    this.add(jfxPanel, BorderLayout.CENTER);
+
     this.add(entryPanel, BorderLayout.SOUTH);
 
     this.setFocusCycleRoot(true);
@@ -86,6 +122,16 @@ public class CommandDisplayPanel extends JPanel implements FocusListener {
 
   @Override
   public void focusLost(FocusEvent e) {}
+
+  public void appendSessionContent(String content) {
+    if (this.body == null) return;
+    Platform.runLater(
+        () -> {
+          String newInnerHTML;
+          newInnerHTML = this.body.getMember("innerHTML") + content;
+          this.body.setMember("innerHTML", newInnerHTML);
+        });
+  }
 
   private class CommandEntryListener extends ThreadedListener {
     @Override

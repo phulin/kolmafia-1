@@ -3,7 +3,6 @@ package net.sourceforge.kolmafia.swingui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
@@ -30,8 +29,6 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
@@ -64,7 +61,6 @@ import net.sourceforge.kolmafia.swingui.menu.GlobalMenuBar;
 import net.sourceforge.kolmafia.swingui.menu.ScriptMenu;
 import net.sourceforge.kolmafia.swingui.panel.CompactSidePane;
 import net.sourceforge.kolmafia.swingui.widget.GenericScrollPane;
-import net.sourceforge.kolmafia.swingui.widget.RequestPane;
 import net.sourceforge.kolmafia.utilities.InputFieldUtilities;
 import net.sourceforge.kolmafia.utilities.LockableListFactory;
 import net.sourceforge.kolmafia.utilities.StringUtilities;
@@ -123,23 +119,7 @@ public abstract class GenericFrame extends JFrame implements Runnable, FocusList
     this.frameName = this.getClass().getName();
     this.frameName = this.frameName.substring(this.frameName.lastIndexOf(".") + 1);
 
-    if (this.shouldAddStatusBar()) {
-      JScrollPane statusBar = KoLConstants.commandBuffer.addDisplay(new RequestPane());
-      JComponentUtilities.setComponentSize(statusBar, new Dimension(200, 50));
-
-      JSplitPane doublePane =
-          new JSplitPane(JSplitPane.VERTICAL_SPLIT, new GenericScrollPane(framePanel), statusBar);
-
-      doublePane.setOneTouchExpandable(true);
-      doublePane.setDividerLocation(0.9);
-
-      JPanel wrappedDoublePane = new JPanel(new BorderLayout(0, 0));
-      wrappedDoublePane.add(doublePane, BorderLayout.CENTER);
-
-      this.setContentPane(wrappedDoublePane);
-    } else {
-      this.setContentPane(framePanel);
-    }
+    this.setContentPane(framePanel);
 
     this.menuBar = new GlobalMenuBar();
     this.setJMenuBar(this.menuBar);
@@ -179,10 +159,6 @@ public abstract class GenericFrame extends JFrame implements Runnable, FocusList
 
   public JPanel getFramePanel() {
     return this.framePanel;
-  }
-
-  public boolean shouldAddStatusBar() {
-    return Preferences.getBoolean("addStatusBarToFrames") && !this.appearsInTab();
   }
 
   public boolean showInWindowMenu() {

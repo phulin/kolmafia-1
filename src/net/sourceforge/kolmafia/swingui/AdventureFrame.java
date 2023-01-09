@@ -69,11 +69,6 @@ public class AdventureFrame extends GenericFrame implements Listener {
   }
 
   @Override
-  public boolean shouldAddStatusBar() {
-    return false;
-  }
-
-  @Override
   public void setStatusMessage(final String message) {
     if (AdventureFrame.requestMeter == null || message.length() == 0) {
       return;

@@ -16,6 +16,8 @@ import net.sourceforge.kolmafia.utilities.StringUtilities;
 public class CommandDisplayFrame extends GenericFrame {
   private static final BlockingQueue<String> commandQueue = new LinkedBlockingQueue<>();
   private static final CommandQueueHandler handler = new CommandQueueHandler();
+  private static CommandDisplayPanel panel;
+  private static final StringBuffer outputBuffer = new StringBuffer();
 
   static {
     CommandDisplayFrame.handler.start();
@@ -24,17 +26,22 @@ public class CommandDisplayFrame extends GenericFrame {
   public CommandDisplayFrame() {
     super("Graphical CLI");
 
-    this.setCenterComponent(new CommandDisplayPanel("commandBufferGCLI"));
+    CommandDisplayFrame.panel = new CommandDisplayPanel("commandBufferGCLI");
+    this.setCenterComponent(CommandDisplayFrame.panel);
+  }
+
+  public static void appendSessionContent(String content) {
+    CommandDisplayFrame.outputBuffer.append(content);
+    if (CommandDisplayFrame.panel == null) return;
+    synchronized (CommandDisplayFrame.outputBuffer) {
+      CommandDisplayFrame.panel.appendSessionContent(outputBuffer.toString());
+      outputBuffer.setLength(0);
+    }
   }
 
   @Override
   public JTabbedPane getTabbedPane() {
     return null;
-  }
-
-  @Override
-  public boolean shouldAddStatusBar() {
-    return false;
   }
 
   @Override

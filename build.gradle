@@ -12,11 +12,12 @@ plugins {
 	id 'java'
 
 	id 'com.diffplug.spotless' version '6.23.3'
-	id 'com.gradleup.shadow' version '8.3.0'
+  id 'com.gradleup.shadow' version '8.3.0'
 	id 'net.nemerosa.versioning' version '3.1.0'
 	id 'org.ajoberstar.grgit' version '5.2.2'
-	id 'org.panteleyev.jpackageplugin' version '1.6.0'
-	id "com.github.ben-manes.versions" version "0.51.0" // enables ./gradlew dependencyUpdates for outdated
+  id 'org.openjfx.javafxplugin' version '0.0.13'
+  id 'org.panteleyev.jpackageplugin' version '1.6.0'
+  id "com.github.ben-manes.versions" version "0.51.0" // enables ./gradlew dependencyUpdates for outdated
 }
 
 sourceSets {
@@ -123,6 +124,14 @@ spotless {
 		target 'src/**/*.java', 'test/**/*.java'
 		googleJavaFormat()
 	}
+}
+
+javafx {
+	version = "11"
+	modules = [
+		'javafx.web',
+		'javafx.swing'
+	]
 }
 
 task cleanDist(type: Delete) {

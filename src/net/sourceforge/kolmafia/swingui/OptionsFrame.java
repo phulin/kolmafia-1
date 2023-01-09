@@ -937,8 +937,6 @@ public class OptionsFrame extends GenericFrame {
       } else if (this.fontSizes[2].isSelected()) {
         Preferences.setString("chatFontSize", "large");
       }
-
-      KoLConstants.commandBuffer.append(null);
     }
 
     @Override

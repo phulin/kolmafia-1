@@ -192,11 +192,6 @@ public class ChatFrame extends GenericFrame {
   }
 
   @Override
-  public boolean shouldAddStatusBar() {
-    return false;
-  }
-
-  @Override
   public boolean showInWindowMenu() {
     return false;
   }
