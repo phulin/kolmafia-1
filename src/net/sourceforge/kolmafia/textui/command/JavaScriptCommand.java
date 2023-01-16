@@ -1,7 +1,9 @@
 package net.sourceforge.kolmafia.textui.command;
 
+import javafx.application.Platform;
 import net.sourceforge.kolmafia.KoLmafia;
 import net.sourceforge.kolmafia.KoLmafiaCLI.ParameterHandling;
+import net.sourceforge.kolmafia.swingui.CommandDisplayFrame;
 import net.sourceforge.kolmafia.textui.RuntimeLibrary;
 import net.sourceforge.kolmafia.textui.javascript.JavascriptRuntime;
 import net.sourceforge.kolmafia.textui.parsetree.CompositeValue;
@@ -15,6 +17,15 @@ public class JavaScriptCommand extends AbstractCommand {
 
   @Override
   public void run(final String cmd, String parameters) {
+    if (cmd.endsWith("q")) {
+      Platform.runLater(
+          () -> {
+            Object result = CommandDisplayFrame.panel.webView.getEngine().executeScript(parameters);
+            KoLmafia.updateDisplay("Returned: " + result);
+          });
+      return;
+    }
+
     JavascriptRuntime runtime = new JavascriptRuntime(parameters);
     Value returnValue = runtime.execute("main", new String[] {});
 

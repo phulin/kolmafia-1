@@ -127,7 +127,7 @@ spotless {
 }
 
 javafx {
-	version = "11"
+	version = "19"
 	modules = [
 		'javafx.web',
 		'javafx.swing'

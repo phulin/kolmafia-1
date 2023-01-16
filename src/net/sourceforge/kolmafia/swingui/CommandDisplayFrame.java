@@ -16,8 +16,8 @@ import net.sourceforge.kolmafia.utilities.StringUtilities;
 public class CommandDisplayFrame extends GenericFrame {
   private static final BlockingQueue<String> commandQueue = new LinkedBlockingQueue<>();
   private static final CommandQueueHandler handler = new CommandQueueHandler();
-  private static CommandDisplayPanel panel;
-  private static final StringBuffer outputBuffer = new StringBuffer();
+  public static CommandDisplayPanel panel;
+  private static final StringBuffer contentBuffer = new StringBuffer();
 
   static {
     CommandDisplayFrame.handler.start();
@@ -31,11 +31,11 @@ public class CommandDisplayFrame extends GenericFrame {
   }
 
   public static void appendSessionContent(String content) {
-    CommandDisplayFrame.outputBuffer.append(content);
+    CommandDisplayFrame.contentBuffer.append(content);
     if (CommandDisplayFrame.panel == null) return;
-    synchronized (CommandDisplayFrame.outputBuffer) {
-      CommandDisplayFrame.panel.appendSessionContent(outputBuffer.toString());
-      outputBuffer.setLength(0);
+    synchronized (CommandDisplayFrame.contentBuffer) {
+      CommandDisplayFrame.panel.appendSessionContent(contentBuffer.toString());
+      contentBuffer.setLength(0);
     }
   }
 

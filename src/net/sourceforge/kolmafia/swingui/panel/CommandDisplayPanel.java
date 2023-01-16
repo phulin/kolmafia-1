@@ -12,12 +12,12 @@ import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Worker;
 import javafx.embed.swing.JFXPanel;
-import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javax.swing.JButton;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import net.sourceforge.kolmafia.StaticEntity;
 import net.sourceforge.kolmafia.swingui.CommandDisplayFrame;
 import net.sourceforge.kolmafia.swingui.listener.DefaultComponentFocusTraversalPolicy;
@@ -27,17 +27,26 @@ import net.sourceforge.kolmafia.swingui.widget.AutoHighlightTextField;
 import net.sourceforge.kolmafia.swingui.widget.RequestPane;
 import net.sourceforge.kolmafia.utilities.RollingLinkedList;
 import netscape.javascript.JSObject;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 public class CommandDisplayPanel extends JPanel implements FocusListener {
   private final RollingLinkedList<String> commandHistory = new RollingLinkedList<>(20);
   private final AutoHighlightTextField entryField;
   private final JButton entryButton;
+  private int elementId = 0;
 
-  private static final String STYLE = "body { font-family: sans-serif; padding: 1px; }";
+  private static final String STYLE =
+      "html { padding: 0px; }"
+          + "body { font-family: sans-serif; padding: 1px; }"
+          + "body * { overflow-anchor: none; }"
+          + "#anchor { overflow-anchor: auto; height: 50px; background-color: green; }";
   private static final String INITIAL_CONTENT =
       "<html><head><style>" + STYLE + "</style></head><body></body></html>";
-  private WebView webView = null;
-  private JSObject body = null;
+  public WebView webView = null;
+  private Node body = null;
+  private JFXPanel panel = null;
 
   private final String preference;
   private final String DELIMITER = "#";
@@ -64,14 +73,15 @@ public class CommandDisplayPanel extends JPanel implements FocusListener {
 
     JFXPanel jfxPanel = new JFXPanel();
     jfxPanel.setSize(400, 300);
+    this.panel = jfxPanel;
 
     Platform.runLater(
         () -> {
           this.webView = new WebView();
           WebEngine engine = this.webView.getEngine();
+          System.out.println(engine.getUserAgent());
           engine.loadContent(CommandDisplayPanel.INITIAL_CONTENT, "text/html");
-          webView
-              .getEngine()
+          engine
               .getLoadWorker()
               .stateProperty()
               .addListener(
@@ -82,12 +92,13 @@ public class CommandDisplayPanel extends JPanel implements FocusListener {
                       return;
                     }
 
-                    this.body = (JSObject) this.webView.getEngine().executeScript("document.body");
+                    this.body = (Node) engine.executeScript("document.body");
+                    //                    engine.executeScript("new MutationObserver((muts) => {
+                    // window.scrollTo(0, document.body.scrollHeight); }).observe(document.body, {
+                    // childList: true });");
                   });
 
-          Group root = new Group();
-          Scene scene = new Scene(root);
-          root.getChildren().add(this.webView);
+          Scene scene = new Scene(this.webView);
           jfxPanel.setScene(scene);
         });
 
@@ -123,13 +134,53 @@ public class CommandDisplayPanel extends JPanel implements FocusListener {
   @Override
   public void focusLost(FocusEvent e) {}
 
+  private void truncate() {
+    if (this.body.getTextContent().length() > 50000) {
+      int accumulatedLength = 0;
+      NodeList children = this.body.getChildNodes();
+      for (int i = children.getLength() - 1; i >= 0; i--) {
+        Node child = children.item(i);
+        accumulatedLength += child.getTextContent().length();
+        if (accumulatedLength >= 45000) {
+          this.body.removeChild(child);
+        }
+      }
+    }
+  }
+
   public void appendSessionContent(String content) {
     if (this.body == null) return;
     Platform.runLater(
         () -> {
-          String newInnerHTML;
-          newInnerHTML = this.body.getMember("innerHTML") + content;
-          this.body.setMember("innerHTML", newInnerHTML);
+          Element newDiv = this.body.getOwnerDocument().createElement("div");
+          newDiv.setAttribute("id", "element" + this.elementId++);
+          ((JSObject) newDiv).setMember("innerHTML", content);
+          this.body.appendChild(newDiv);
+          truncate();
+
+          StringBuilder status = new StringBuilder();
+          for (int i = 0; i < this.body.getChildNodes().getLength(); i++) {
+            status.append(((Element) this.body.getChildNodes().item(i)).getAttribute("id"));
+            status.append("/");
+            status.append(
+                this.webView
+                    .getEngine()
+                    .executeScript("document.body.childNodes[" + i + "].style.overflowAnchor"));
+            status.append(", ");
+          }
+          //          System.out.println(status);
+          SwingUtilities.invokeLater(
+              () -> {
+                this.panel.invalidate();
+                Platform.runLater(
+                    () -> {
+                      this.webView
+                          .getEngine()
+                          .executeScript("window.scrollTo(0, document.body.scrollHeight);");
+                    });
+              });
+          //          this.webView.getEngine().executeScript("document.body.style.opacity = 1.000" +
+          // this.elementId);
         });
   }
 
