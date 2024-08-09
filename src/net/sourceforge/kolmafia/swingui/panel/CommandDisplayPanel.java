@@ -4,6 +4,7 @@ import static net.sourceforge.kolmafia.preferences.Preferences.getString;
 import static net.sourceforge.kolmafia.preferences.Preferences.setString;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
@@ -15,6 +16,7 @@ import javafx.embed.swing.JFXPanel;
 import javafx.scene.Scene;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
@@ -39,13 +41,21 @@ public class CommandDisplayPanel extends JPanel implements FocusListener {
 
   private static final String STYLE =
       "html { padding: 0px; }"
-          + "body { font-family: sans-serif; padding: 1px; }"
-          + "body * { overflow-anchor: none; }"
-          + "#anchor { overflow-anchor: auto; height: 50px; background-color: green; }";
+          + "body { font-family: sans-serif; }"
+          + "#container { padding: 1px; }";
   private static final String INITIAL_CONTENT =
-      "<html><head><style>" + STYLE + "</style></head><body></body></html>";
+      "<!doctype html><html><head><style>"
+          + STYLE
+          + "</style>"
+          + "</head><body><div id=\"container\"></div></div></body></html>";
+
+  // If 1100 or more lines in scrollback, truncate to 1000.
+  private static final int TRUNCATE_THRESHOLD = 1100;
+  private static final int TRUNCATE_TO = 1000;
+
   public WebView webView = null;
   private Node body = null;
+  private Node container = null;
   private JFXPanel panel = null;
 
   private final String preference;
@@ -73,13 +83,13 @@ public class CommandDisplayPanel extends JPanel implements FocusListener {
 
     JFXPanel jfxPanel = new JFXPanel();
     jfxPanel.setSize(400, 300);
+    jfxPanel.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
     this.panel = jfxPanel;
 
     Platform.runLater(
         () -> {
           this.webView = new WebView();
           WebEngine engine = this.webView.getEngine();
-          System.out.println(engine.getUserAgent());
           engine.loadContent(CommandDisplayPanel.INITIAL_CONTENT, "text/html");
           engine
               .getLoadWorker()
@@ -92,10 +102,30 @@ public class CommandDisplayPanel extends JPanel implements FocusListener {
                       return;
                     }
 
-                    this.body = (Node) engine.executeScript("document.body");
-                    //                    engine.executeScript("new MutationObserver((muts) => {
-                    // window.scrollTo(0, document.body.scrollHeight); }).observe(document.body, {
-                    // childList: true });");
+                    this.body =
+                        this.webView.getEngine().getDocument().getElementsByTagName("body").item(0);
+                    this.container =
+                        this.webView.getEngine().getDocument().getElementById("container");
+
+                    this.webView
+                        .getEngine()
+                        .executeScript(
+                            """
+                        window.scrolled = true;
+                        document.addEventListener("scroll", (event) => {
+                          window.scrolled = document.body.scrollHeight - (document.body.scrollTop + window.innerHeight) <= 10;
+                        });
+                        new MutationObserver((muts) => {
+                          muts.forEach((mut) => {
+                            if (mut.type === "childList" && window.scrolled) {
+                              window.scrollTo(0, document.body.scrollHeight);
+                            }
+                          });
+                        }).observe(
+                          document.getElementById("container"),
+                          { childList: true }
+                        );
+                        """);
                   });
 
           Scene scene = new Scene(this.webView);
@@ -135,15 +165,11 @@ public class CommandDisplayPanel extends JPanel implements FocusListener {
   public void focusLost(FocusEvent e) {}
 
   private void truncate() {
-    if (this.body.getTextContent().length() > 50000) {
-      int accumulatedLength = 0;
-      NodeList children = this.body.getChildNodes();
-      for (int i = children.getLength() - 1; i >= 0; i--) {
+    NodeList children = this.container.getChildNodes();
+    if (children.getLength() >= TRUNCATE_THRESHOLD) {
+      for (int i = children.getLength() - TRUNCATE_TO - 1; i >= 0; i--) {
         Node child = children.item(i);
-        accumulatedLength += child.getTextContent().length();
-        if (accumulatedLength >= 45000) {
-          this.body.removeChild(child);
-        }
+        this.container.removeChild(child);
       }
     }
   }
@@ -152,35 +178,16 @@ public class CommandDisplayPanel extends JPanel implements FocusListener {
     if (this.body == null) return;
     Platform.runLater(
         () -> {
-          Element newDiv = this.body.getOwnerDocument().createElement("div");
+          Element newDiv = this.container.getOwnerDocument().createElement("div");
           newDiv.setAttribute("id", "element" + this.elementId++);
           ((JSObject) newDiv).setMember("innerHTML", content);
-          this.body.appendChild(newDiv);
+          this.container.appendChild(newDiv);
           truncate();
 
-          StringBuilder status = new StringBuilder();
-          for (int i = 0; i < this.body.getChildNodes().getLength(); i++) {
-            status.append(((Element) this.body.getChildNodes().item(i)).getAttribute("id"));
-            status.append("/");
-            status.append(
-                this.webView
-                    .getEngine()
-                    .executeScript("document.body.childNodes[" + i + "].style.overflowAnchor"));
-            status.append(", ");
-          }
-          //          System.out.println(status);
           SwingUtilities.invokeLater(
               () -> {
                 this.panel.invalidate();
-                Platform.runLater(
-                    () -> {
-                      this.webView
-                          .getEngine()
-                          .executeScript("window.scrollTo(0, document.body.scrollHeight);");
-                    });
               });
-          //          this.webView.getEngine().executeScript("document.body.style.opacity = 1.000" +
-          // this.elementId);
         });
   }
 
