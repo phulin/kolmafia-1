@@ -31,7 +31,6 @@ import net.sourceforge.kolmafia.utilities.RollingLinkedList;
 import netscape.javascript.JSObject;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 public class CommandDisplayPanel extends JPanel implements FocusListener {
   private final RollingLinkedList<String> commandHistory = new RollingLinkedList<>(20);
@@ -115,27 +114,29 @@ public class CommandDisplayPanel extends JPanel implements FocusListener {
                         .getEngine()
                         .executeScript(
                             """
-                        window.scrolled = true;
-                        const container = document.getElementById("container");
-                        container.addEventListener("scroll", (event) => {
-                          if (window.ignoreScrollEvents) {
-                            window.ignoreScrollEvents = false;
-                            return;
-                          }
-                          const distanceFromBottom = container.scrollHeight - (container.scrollTop + window.innerHeight + 2 * %d)
-                          window.scrolled = distanceFromBottom <= 20;
-                        });
-                        new MutationObserver((muts) => {
-                          muts.forEach((mut) => {
-                            if (mut.type === "childList" && mut.addedNodes && mut.addedNodes.length > 0 && window.scrolled) {
-                              window.ignoreScrollEvents = true;
-                              container.scrollTo(0, container.scrollHeight);
+                        (function() {
+                          window.scrolled = true;
+                          const container = document.getElementById("container");
+                          container.addEventListener("scroll", (event) => {
+                            if (window.ignoreScrollEvents) {
+                              window.ignoreScrollEvents = false;
+                              return;
                             }
+                            const distanceFromBottom = container.scrollHeight - (container.scrollTop + window.innerHeight + 2 * %d)
+                            window.scrolled = distanceFromBottom <= 20;
                           });
-                        }).observe(
-                          container,
-                          { childList: true }
-                        );
+                          new MutationObserver((muts) => {
+                            muts.forEach((mut) => {
+                              if (mut.type === "childList" && mut.addedNodes && mut.addedNodes.length > 0 && window.scrolled) {
+                                window.ignoreScrollEvents = true;
+                                container.scrollTo(0, container.scrollHeight);
+                              }
+                            });
+                          }).observe(
+                            container,
+                            { childList: true }
+                          );
+                        })();
                         """
                                 .formatted(PADDING));
                   });
@@ -177,12 +178,27 @@ public class CommandDisplayPanel extends JPanel implements FocusListener {
   public void focusLost(FocusEvent e) {}
 
   private void truncate() {
-    NodeList children = this.container.getChildNodes();
-    if (children.getLength() >= TRUNCATE_THRESHOLD) {
-      for (int i = children.getLength() - TRUNCATE_TO - 1; i >= 0; i--) {
-        Node child = children.item(i);
-        this.container.removeChild(child);
-      }
+    //    NodeList children = this.container.getChildNodes();
+    //    if (children.getLength() >= TRUNCATE_THRESHOLD) {
+    //      for (int i = children.getLength() - TRUNCATE_TO - 1; i >= 0; i--) {
+    //        Node child = children.item(i);
+    //        this.container.removeChild(child);
+    //      }
+    //    }
+    if (this.container.getChildNodes().getLength() >= TRUNCATE_THRESHOLD) {
+      CommandDisplayFrame.panel
+          .webView
+          .getEngine()
+          .executeScript(
+              """
+        (function() {
+          const container = document.getElementById("container");
+          for (let i = container.childNodes.length - %d - 1; i >= 0; i--) {
+            const child = container.childNodes[i];
+            this.container.removeChild(child);
+          }
+        })()"""
+                  .formatted(TRUNCATE_TO));
     }
   }
 
