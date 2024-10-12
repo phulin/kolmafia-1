@@ -36,13 +36,17 @@ import org.w3c.dom.NodeList;
 public class CommandDisplayPanel extends JPanel implements FocusListener {
   private final RollingLinkedList<String> commandHistory = new RollingLinkedList<>(20);
   private final AutoHighlightTextField entryField;
-  private final JButton entryButton;
   private int elementId = 0;
 
+  // js for (let i = 0; i < 1000; i++) { print(i); wait(1); }
+  private static final int PADDING = 5;
   private static final String STYLE =
-      "html { padding: 0px; }"
-          + "body { font-family: sans-serif; }"
-          + "#container { padding: 1px; }";
+      "* { box-sizing: border-box; }"
+          + "html { padding: 0px; margin: 0px; }"
+          + "body { font-family: sans-serif; padding: 0px; margin: 0px; }"
+          + "#container { height: 100vh; width: 100vw; overflow-x: clip; overflow-y: scroll; padding: "
+          + PADDING
+          + "px; }";
   private static final String INITIAL_CONTENT =
       "<!doctype html><html><head><style>"
           + STYLE
@@ -56,7 +60,7 @@ public class CommandDisplayPanel extends JPanel implements FocusListener {
   public WebView webView = null;
   private Node body = null;
   private Node container = null;
-  private JFXPanel panel = null;
+  private final JFXPanel panel;
 
   private final String preference;
   private final String DELIMITER = "#";
@@ -73,11 +77,11 @@ public class CommandDisplayPanel extends JPanel implements FocusListener {
     this.entryField = new AutoHighlightTextField();
     this.entryField.addKeyListener(new CommandEntryListener());
 
-    this.entryButton = new JButton("exec");
-    this.entryButton.addActionListener(new CommandEntryListener());
+    JButton entryButton = new JButton("exec");
+    entryButton.addActionListener(new CommandEntryListener());
 
     entryPanel.add(this.entryField, BorderLayout.CENTER);
-    entryPanel.add(this.entryButton, BorderLayout.EAST);
+    entryPanel.add(entryButton, BorderLayout.EAST);
 
     this.setLayout(new BorderLayout(1, 1));
 
@@ -112,20 +116,28 @@ public class CommandDisplayPanel extends JPanel implements FocusListener {
                         .executeScript(
                             """
                         window.scrolled = true;
-                        document.addEventListener("scroll", (event) => {
-                          window.scrolled = document.body.scrollHeight - (document.body.scrollTop + window.innerHeight) <= 10;
+                        const container = document.getElementById("container");
+                        container.addEventListener("scroll", (event) => {
+                          if (window.ignoreScrollEvents) {
+                            window.ignoreScrollEvents = false;
+                            return;
+                          }
+                          const distanceFromBottom = container.scrollHeight - (container.scrollTop + window.innerHeight + 2 * %d)
+                          window.scrolled = distanceFromBottom <= 20;
                         });
                         new MutationObserver((muts) => {
                           muts.forEach((mut) => {
-                            if (mut.type === "childList" && window.scrolled) {
-                              window.scrollTo(0, document.body.scrollHeight);
+                            if (mut.type === "childList" && mut.addedNodes && mut.addedNodes.length > 0 && window.scrolled) {
+                              window.ignoreScrollEvents = true;
+                              container.scrollTo(0, container.scrollHeight);
                             }
                           });
                         }).observe(
-                          document.getElementById("container"),
+                          container,
                           { childList: true }
                         );
-                        """);
+                        """
+                                .formatted(PADDING));
                   });
 
           Scene scene = new Scene(this.webView);
@@ -184,10 +196,7 @@ public class CommandDisplayPanel extends JPanel implements FocusListener {
           this.container.appendChild(newDiv);
           truncate();
 
-          SwingUtilities.invokeLater(
-              () -> {
-                this.panel.invalidate();
-              });
+          SwingUtilities.invokeLater(this.panel::invalidate);
         });
   }
 
