@@ -11,6 +11,7 @@ import net.sourceforge.kolmafia.KoLmafia;
 import net.sourceforge.kolmafia.preferences.Preferences;
 import net.sourceforge.kolmafia.session.LoginManager;
 import net.sourceforge.kolmafia.utilities.PauseObject;
+import net.sourceforge.kolmafia.websocket.WebsocketServer;
 
 public class RelayLoader extends Thread {
 
@@ -97,11 +98,13 @@ public class RelayLoader extends Thread {
   }
 
   public static synchronized void startRelayServer() {
-    if (RelayServer.isRunning()) {
-      return;
+    if (!RelayServer.isRunning()) {
+      RelayServer.startThread();
     }
 
-    RelayServer.startThread();
+    if (!WebsocketServer.INSTANCE.isRunning()) {
+      WebsocketServer.INSTANCE.startServer();
+    }
   }
 
   public static void openRelayBrowser() {
